@@ -1,0 +1,19 @@
+- name: Install git
+  apt:
+    name: git
+    state: latest
+    update_cache: yes
+
+- name: Clone MinimumViableDataspace
+  shell:
+    cmd: git clone https://github.com/eclipse-edc/MinimumViableDataspace.git
+
+- name: Execute Gradle Build
+  shell:
+    cmd: ./gradlew build
+    chdir: /home/vagrant/MinimumViableDataspace
+
+- name: Execute Gradle Dockerize with Persistence
+  shell:
+    cmd: ./gradlew -Ppersistence=true dockerize
+    chdir: /home/vagrant/MinimumViableDataspace

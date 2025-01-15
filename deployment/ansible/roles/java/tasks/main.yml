@@ -1,0 +1,5 @@
+- name: Install OpenJDK 17 JDK
+  apt:
+    name: openjdk-17-jdk
+    state: latest
+    update_cache: yes

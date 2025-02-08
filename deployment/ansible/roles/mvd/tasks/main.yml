@@ -1,13 +1,3 @@
-- name: Install git
-  apt:
-    name: git
-    state: latest
-    update_cache: yes
-
-- name: Clone MinimumViableDataspace
-  shell:
-    cmd: git clone https://github.com/eclipse-edc/MinimumViableDataspace.git
-
 - name: Execute Gradle Build
   shell:
     cmd: ./gradlew build
@@ -17,3 +7,15 @@
   shell:
     cmd: ./gradlew -Ppersistence=true dockerize
     chdir: /home/vagrant/MinimumViableDataspace
+
+- name: Start MinimumViableDataspace for Consumer
+  shell:
+    cmd: docker compose up -d
+    chdir: /home/vagrant/MinimumViableDataspace/deployment/docker/consumer
+  when: "'consumer' in group_names"
+
+- name: Start MinimumViableDataspace for Provider
+  shell:
+    cmd: docker compose up -d
+    chdir: /home/vagrant/MinimumViableDataspace/deployment/docker/provider
+  when: "'provider' in group_names"

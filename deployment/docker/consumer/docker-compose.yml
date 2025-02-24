@@ -63,6 +63,7 @@ services:
     image: identity-hub:latest
     container_name: consumer-identity-hub
     environment:
+      - EDC_HOSTNAME=consumer-identity-hub
       - EDC_API_AUTH_KEY=password
       - EDC_IH_IAM_ID=did:web:consumer-identityhub%3A7083:consumer
       - EDC_IAM_DID_WEB_USE_HTTPS=false
@@ -97,6 +98,8 @@ services:
       - "7083:7083"  # DID port
       - "7084:7084"  # STS Port
       - "1044:1044"  # Debug Port
+    volumes:
+      - ../../assets/credentials/k8s/consumer:/etc/credentials/
     depends_on:
       vault:
         condition: service_started 
@@ -147,6 +150,8 @@ services:
       - "4083:8083" # Control Port
       - "4084:8084" # Catalog Port
       - "2044:1044" # Debug Port
+    volumes:
+      - ../../assets/participants/participants.k8s.json:/etc/participants/participants.json
     depends_on:
       vault:
         condition: service_started 

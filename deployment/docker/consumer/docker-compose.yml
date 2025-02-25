@@ -30,41 +30,10 @@ services:
     command:
       - vault server -dev 
 
-  sts:
-    image: sts:latest
-    container_name: consumer-sts
-    environment:
-      - JAVA_TOOL_OPTIONS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=1046
-      - WEB_HTTP_ACCOUNTS_PORT=8081
-      - WEB_HTTP_ACCOUNTS_PATH=/api
-      - WEB_HTTP_PORT=8080
-      - WEB_HTTP_PATH=/internal
-      - WEB_HTTP_STS_PORT=8082
-      - WEB_HTTP_STS_PATH=/api/sts
-      - EDC_API_ACCOUNTS_KEY=password
-      - EDC_DATASOURCE_DEFAULT_URL=jdbc:postgresql://consumer-postgres:5432/consumer
-      - EDC_DATASOURCE_DEFAULT_USER=consumer
-      - EDC_DATASOURCE_DEFAULT_PASSWORD=consumer
-      - EDC_SQL_SCHEMA_AUTOCREATE=true
-      - EDC_VAULT_HASHICORP_URL=http://consumer-vault:8200
-      - EDC_VAULT_HASHICORP_TOKEN=root
-    ports:
-      - "8080:8080"  # Web port
-      - "8081:8081"  # Accounts port
-      - "8082:8082"  # STS port
-      - "1046:1046"  # Debug Port
-    depends_on:
-      vault:
-        condition: service_started 
-      postgres:
-        condition: service_healthy
-
   identity-hub:
     image: identity-hub:latest
     container_name: consumer-identity-hub
     environment:
-      - EDC_HOSTNAME=consumer-identity-hub
-      - EDC_API_AUTH_KEY=password
       - EDC_IH_IAM_ID=did:web:consumer-identityhub%3A7083:consumer
       - EDC_IAM_DID_WEB_USE_HTTPS=false
       - EDC_IH_IAM_PUBLICKEY_ALIAS=consumer-identity-hub-publickey
@@ -73,6 +42,7 @@ services:
       - WEB_HTTP_PATH=/api
       - WEB_HTTP_IDENTITY_PORT=7081
       - WEB_HTTP_IDENTITY_PATH=/api/identity
+      - WEB_HTTP_IDENTITY_AUTH_KEY=password
       - WEB_HTTP_PRESENTATION_PORT=7082
       - WEB_HTTP_PRESENTATION_PATH=/api/presentation
       - WEB_HTTP_DID_PORT=7083
@@ -89,8 +59,6 @@ services:
       - EDC_DATASOURCE_DEFAULT_USER=consumer
       - EDC_DATASOURCE_DEFAULT_PASSWORD=consumer
       - EDC_SQL_SCHEMA_AUTOCREATE=true
-      - EDC_STS_ACCOUNT_API_URL=http://consumer-sts:8081/api
-      - EDC_STS_ACCOUNTS_API_AUTH_HEADER_VALUE=password
       - EDC_IAM_ACCESSTOKEN_JTI_VALIDATION=true
     ports:
       - "7080:7080"  # Web port
@@ -111,13 +79,14 @@ services:
     container_name: consumer-connector-controlplane 
     environment:
       - EDC_PARTICIPANT_ID=did:web:consumer-identityhub%3A7083:consumer
-      - EDC_API_AUTH_KEY=password
       - EDC_IAM_ISSUER_ID=did:web:consumer-identityhub%3A7083:consumer
       - EDC_IAM_DID_WEB_USE_HTTPS=false
       - WEB_HTTP_PORT=8080
       - WEB_HTTP_PATH=/api
       - WEB_HTTP_MANAGEMENT_PORT=8081
       - WEB_HTTP_MANAGEMENT_PATH=/api/management
+      - WEB_HTTP_MANAGEMENT_AUTH_TYPE=tokenbased
+      - WEB_HTTP_MANAGEMENT_AUTH_KEY=password
       - WEB_HTTP_CONTROL_PORT=8083
       - WEB_HTTP_CONTROL_PATH=/api/control
       - WEB_HTTP_PROTOCOL_PORT=8082
@@ -140,7 +109,7 @@ services:
       - EDC_DATASOURCE_DEFAULT_USER=consumer
       - EDC_DATASOURCE_DEFAULT_PASSWORD=consumer
       - EDC_SQL_SCHEMA_AUTOCREATE=true
-      - EDC_IAM_STS_OAUTH_TOKEN_URL=http://consumer-sts:8082/api/sts
+      - EDC_IAM_STS_OAUTH_TOKEN_URL=http://consumer-identity-hub:7084/api/sts
       - EDC_IAM_STS_OAUTH_CLIENT_ID=did:web:consumer-identityhub%3A7083:consumer
       - EDC_IAM_STS_OAUTH_CLIENT_SECRET_ALIAS=did:web:consumer-identityhub%3A7083:consumer-sts-client-secret
     ports:
@@ -181,7 +150,7 @@ services:
       - EDC_DATASOURCE_DEFAULT_USER=consumer
       - EDC_DATASOURCE_DEFAULT_PASSWORD=consumer
       - EDC_SQL_SCHEMA_AUTOCREATE=true
-      - EDC_IAM_STS_OAUTH_TOKEN_URL=http://consumer-sts:8082/api/sts
+      - EDC_IAM_STS_OAUTH_TOKEN_URL=http://consumer-identity-hub:7084/api/sts
       - EDC_IAM_STS_OAUTH_CLIENT_ID=did:web:consumer-identityhub%3A7083:consumer
       - EDC_IAM_STS_OAUTH_CLIENT_SECRET_ALIAS=consumer-participant-sts-client-secret
     ports:
@@ -194,7 +163,3 @@ services:
         condition: service_started 
       postgres:
         condition: service_healthy
-
-volumes:
-  vault-data:
-    driver: local

@@ -109,14 +109,15 @@ resource "kubernetes_config_map" "sts-config" {
 
   ## Create databases for keycloak and MIW, create users and assign privileges
   data = {
-    JAVA_TOOL_OPTIONS               = "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=${var.ports.debug}"
+    JAVA_TOOL_OPTIONS               = "${var.useSVE ? "-XX:UseSVE=0 " : ""}-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=${var.ports.debug}"
     WEB_HTTP_ACCOUNTS_PORT          = var.ports.accounts
     WEB_HTTP_ACCOUNTS_PATH          = var.accounts-path
+    WEB_HTTP_ACCOUNTS_AUTH_TYPE     = "tokenbased"
+    WEB_HTTP_ACCOUNTS_AUTH_KEY      = "password"
     WEB_HTTP_PORT                   = var.ports.web
     WEB_HTTP_PATH                   = "/internal"
     WEB_HTTP_STS_PORT               = var.ports.sts
     WEB_HTTP_STS_PATH               = var.sts-path
-    EDC_API_ACCOUNTS_KEY            = "password"
     EDC_DATASOURCE_DEFAULT_URL      = var.database.url
     EDC_DATASOURCE_DEFAULT_USER     = var.database.user
     EDC_DATASOURCE_DEFAULT_PASSWORD = var.database.password

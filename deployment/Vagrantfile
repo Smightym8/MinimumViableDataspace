@@ -1,9 +1,10 @@
 Vagrant.configure("2") do |config|
     vm_box = "ubuntu/jammy64"
     vm_box_version = "20241002.0.0"
-    vm_memory = 2048
-    vm_cpus = 1
+    vm_memory = 4096
+    vm_cpus = 2
 
+    # TODO: Find a way to reduce disk size of the vms
     # Consumer VM
     config.vm.define "mvd-consumer-vm" do |consumer|
       consumer.vm.box = vm_box

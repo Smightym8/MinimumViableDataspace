@@ -34,7 +34,7 @@ services:
     image: identity-hub:latest
     container_name: provider-identity-hub
     environment:
-      - EDC_IH_IAM_ID=did:web:provider-identityhub%3A7083:provider
+      - EDC_IH_IAM_ID=did:web:192.168.1.102%3A7083:provider
       - EDC_IAM_DID_WEB_USE_HTTPS=false
       - EDC_IH_IAM_PUBLICKEY_ALIAS=provider-identity-hub-publickey
       - EDC_IH_API_SUPERUSER_KEY=c3VwZXItdXNlcg==.c3VwZXItc2VjcmV0LWtleQo=
@@ -67,7 +67,7 @@ services:
       - "7084:7084"  # STS Port
       - "1044:1044"  # Debug Port
     volumes:
-      - ../../assets/credentials/k8s/provider:/etc/credentials/
+      - ../../assets/credentials/vm/provider:/etc/credentials/
     depends_on:
       vault:
         condition: service_started 
@@ -78,7 +78,7 @@ services:
     image: catalog-server:latest
     container_name: provider-catalog-server
     environment:
-      - EDC_IAM_ISSUER_ID=did:web:provider-identityhub%3A7083:provider
+      - EDC_IAM_ISSUER_ID=did:web:192.168.1.102%3A7083:provider
       - EDC_IAM_DID_WEB_USE_HTTPS=false
       - WEB_HTTP_PORT=8080
       - WEB_HTTP_PATH=/api
@@ -89,11 +89,11 @@ services:
       - WEB_HTTP_PROTOCOL_PORT=8082
       - WEB_HTTP_PROTOCOL_PATH=/api/dsp
       - EDC_DSP_CALLBACK_ADDRESS=http://provider-catalog-server:8082/api/dsp
-      - EDC_IAM_STS_PRIVATEKEY_ALIAS=did:web:provider-identityhub%3A7083:provider#key-1
-      - EDC_IAM_STS_PUBLICKEY_ID=did:web:provider-identityhub%3A7083:provider#key-1
+      - EDC_IAM_STS_PRIVATEKEY_ALIAS=did:web:192.168.1.102%3A7083:provider#key-1
+      - EDC_IAM_STS_PUBLICKEY_ID=did:web:192.168.1.102%3A7083:provider#key-1
       - JAVA_TOOL_OPTIONS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=1044
       - EDC_IH_AUDIENCE_REGISTRY_PATH=/etc/registry/registry.json
-      - EDC_PARTICIPANT_ID=did:web:provider-identityhub%3A7083:provider
+      - EDC_PARTICIPANT_ID=did:web:192.168.1.102%3A7083:provider
       - EDC_VAULT_HASHICORP_URL=http://provider-vault:8200
       - EDC_VAULT_HASHICORP_TOKEN=root
       - EDC_MVD_PARTICIPANTS_LIST_FILE=/etc/participants/participants.json
@@ -102,8 +102,8 @@ services:
       - EDC_DATASOURCE_DEFAULT_PASSWORD=catalog_server
       - EDC_SQL_SCHEMA_AUTOCREATE=true
       - EDC_IAM_STS_OAUTH_TOKEN_URL=http://provider-identity-hub:7084/api/sts
-      - EDC_IAM_STS_OAUTH_CLIENT_ID=did:web:provider-identityhub%3A7083:provider
-      - EDC_IAM_STS_OAUTH_CLIENT_SECRET_ALIAS=did:web:provider-identityhub%3A7083:provider-sts-client-secret
+      - EDC_IAM_STS_OAUTH_CLIENT_ID=did:web:192.168.1.102%3A7083:provider
+      - EDC_IAM_STS_OAUTH_CLIENT_SECRET_ALIAS=did:web:192.168.1.102%3A7083:provider-sts-client-secret
     ports:
       - "9080:8080"  # Web port
       - "9081:8081"  # Management port
@@ -111,19 +111,21 @@ services:
       - "9083:8083"  # Control Port
       - "2044:1044"  # Debug Port
     volumes:
-      - ../../assets/participants/participants.k8s.json:/etc/participants/participants.json
+      - ../../assets/participants/participants.vm.json:/etc/participants/participants.json
     depends_on:
       vault:
         condition: service_started 
       postgres:
         condition: service_healthy
+      identity-hub:
+        condition: service_started #TODO: service_healthy
 
   qna-connector-controlplane:
     image: controlplane:latest
     container_name: provider-qna-connector-controlplane 
     environment:
-      - EDC_PARTICIPANT_ID=did:web:provider-identityhub%3A7083:provider
-      - EDC_IAM_ISSUER_ID=did:web:provider-identityhub%3A7083:provider
+      - EDC_PARTICIPANT_ID=did:web:192.168.1.102%3A7083:provider
+      - EDC_IAM_ISSUER_ID=did:web:192.168.1.102%3A7083:provider
       - EDC_IAM_DID_WEB_USE_HTTPS=false
       - WEB_HTTP_PORT=8080
       - WEB_HTTP_PATH=/api
@@ -138,8 +140,8 @@ services:
       - WEB_HTTP_CATALOG_AUTH_TYPE=tokenbased
       - WEB_HTTP_CATALOG_AUTH_KEY=password
       - EDC_DSP_CALLBACK_ADDRESS=http://provider-qna-connector-controlplane:8082/api/dsp
-      - EDC_IAM_STS_PRIVATEKEY_ALIAS=did:web:provider-identityhub%3A7083:provider#key-1
-      - EDC_IAM_STS_PUBLICKEY_ID=did:web:provider-identityhub%3A7083:provider#key-1
+      - EDC_IAM_STS_PRIVATEKEY_ALIAS=did:web:192.168.1.102%3A7083:provider#key-1
+      - EDC_IAM_STS_PUBLICKEY_ID=did:web:192.168.1.102%3A7083:provider#key-1
       - JAVA_TOOL_OPTIONS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=1044
       - EDC_IH_AUDIENCE_REGISTRY_PATH=/etc/registry/registry.json
       - EDC_VAULT_HASHICORP_URL=http://provider-vault:8200
@@ -152,8 +154,8 @@ services:
       - EDC_DATASOURCE_DEFAULT_PASSWORD=provider-qna
       - EDC_SQL_SCHEMA_AUTOCREATE=true
       - EDC_IAM_STS_OAUTH_TOKEN_URL=http://provider-identity-hub:7084/api/sts
-      - EDC_IAM_STS_OAUTH_CLIENT_ID=did:web:provider-identityhub%3A7083:provider
-      - EDC_IAM_STS_OAUTH_CLIENT_SECRET_ALIAS=did:web:provider-identityhub%3A7083:provider-sts-client-secret
+      - EDC_IAM_STS_OAUTH_CLIENT_ID=did:web:192.168.1.102%3A7083:provider
+      - EDC_IAM_STS_OAUTH_CLIENT_SECRET_ALIAS=did:web:192.168.1.102%3A7083:provider-sts-client-secret
     ports:
       - "4080:8080" # Web Port
       - "4081:8081" # Management Port
@@ -162,12 +164,14 @@ services:
       - "4084:8084" # Catalog Port
       - "4044:1044" # Debug Port
     volumes:
-      - ../../assets/participants/participants.k8s.json:/etc/participants/participants.json
+      - ../../assets/participants/participants.vm.json:/etc/participants/participants.json
     depends_on:
       vault:
         condition: service_started 
       postgres:
         condition: service_healthy
+      identity-hub:
+        condition: service_started #TODO: service_healthy
 
   qna-connector-dataplane:
     image: dataplane:latest
@@ -175,9 +179,9 @@ services:
     environment:
       - EDC_HOSTNAME=provider-qna-connector-dataplane
       - EDC_RUNTIME_ID=provider-qna-connector-dataplane
-      - EDC_PARTICIPANT_ID=did:web:provider-identityhub%3A7083:provider
-      - EDC_TRANSFER_PROXY_TOKEN_VERIFIER_PUBLICKEY_ALIAS=did:web:did:web:provider-identityhub%3A7083:provider#key-1
-      - EDC_TRANSFER_PROXY_TOKEN_SIGNER_PRIVATEKEY_ALIAS=did:web:did:web:provider-identityhub%3A7083:provider#key-1
+      - EDC_PARTICIPANT_ID=did:web:192.168.1.102%3A7083:provider
+      - EDC_TRANSFER_PROXY_TOKEN_VERIFIER_PUBLICKEY_ALIAS=did:web:192.168.1.102%3A7083:provider#key-1
+      - EDC_TRANSFER_PROXY_TOKEN_SIGNER_PRIVATEKEY_ALIAS=did:web:192.168.1.102%3A7083:provider#key-1
       - EDC_DPF_SELECTOR_URL=http://provider-qna-connector-controlplane:8083/api/control/v1/dataplanes
       - WEB_HTTP_PORT=8080
       - WEB_HTTP_PATH=/api
@@ -193,7 +197,7 @@ services:
       - EDC_DATASOURCE_DEFAULT_PASSWORD=provider-qna
       - EDC_SQL_SCHEMA_AUTOCREATE=true
       - EDC_IAM_STS_OAUTH_TOKEN_URL=http://provider-identity-hub:7084/api/sts
-      - EDC_IAM_STS_OAUTH_CLIENT_ID=did:web:provider-identityhub%3A7083:provider
+      - EDC_IAM_STS_OAUTH_CLIENT_ID=did:web:192.168.1.102%3A7083:provider
       - EDC_IAM_STS_OAUTH_CLIENT_SECRET_ALIAS=provider-participant-sts-client-secret
     ports:
       - "3080:8080" # Web Port
@@ -205,13 +209,17 @@ services:
         condition: service_started 
       postgres:
         condition: service_healthy
+      qna-connector-controlplane:
+        condition: service_healthy
+      identity-hub:
+        condition: service_started #TODO: service_healthy
 
   manufacturing-connector-controlplane:
     image: controlplane:latest
     container_name: provider-manufacturing-connector-controlplane 
     environment:
-      - EDC_PARTICIPANT_ID=did:web:provider-identityhub%3A7083:provider
-      - EDC_IAM_ISSUER_ID=did:web:provider-identityhub%3A7083:provider
+      - EDC_PARTICIPANT_ID=did:web:192.168.1.102%3A7083:provider
+      - EDC_IAM_ISSUER_ID=did:web:192.168.1.102%3A7083:provider
       - EDC_IAM_DID_WEB_USE_HTTPS=false
       - WEB_HTTP_PORT=8080
       - WEB_HTTP_PATH=/api
@@ -226,8 +234,8 @@ services:
       - WEB_HTTP_CATALOG_AUTH_TYPE=tokenbased
       - WEB_HTTP_CATALOG_AUTH_KEY=password
       - EDC_DSP_CALLBACK_ADDRESS=http://provider-manufacturing-connector-controlplane:8082/api/dsp
-      - EDC_IAM_STS_PRIVATEKEY_ALIAS=did:web:provider-identityhub%3A7083:provider#key-1
-      - EDC_IAM_STS_PUBLICKEY_ID=did:web:provider-identityhub%3A7083:provider#key-1
+      - EDC_IAM_STS_PRIVATEKEY_ALIAS=did:web:192.168.1.102%3A7083:provider#key-1
+      - EDC_IAM_STS_PUBLICKEY_ID=did:web:192.168.1.102%3A7083:provider#key-1
       - JAVA_TOOL_OPTIONS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=1044
       - EDC_IH_AUDIENCE_REGISTRY_PATH=/etc/registry/registry.json
       - EDC_VAULT_HASHICORP_URL=http://provider-vault:8200
@@ -240,8 +248,8 @@ services:
       - EDC_DATASOURCE_DEFAULT_PASSWORD=provider-manufacturing
       - EDC_SQL_SCHEMA_AUTOCREATE=true
       - EDC_IAM_STS_OAUTH_TOKEN_URL=http://provider-identity-hub:7084/api/sts
-      - EDC_IAM_STS_OAUTH_CLIENT_ID=did:web:provider-identityhub%3A7083:provider
-      - EDC_IAM_STS_OAUTH_CLIENT_SECRET_ALIAS=did:web:provider-identityhub%3A7083:provider-sts-client-secret
+      - EDC_IAM_STS_OAUTH_CLIENT_ID=did:web:192.168.1.102%3A7083:provider
+      - EDC_IAM_STS_OAUTH_CLIENT_SECRET_ALIAS=did:web:192.168.1.102%3A7083:provider-sts-client-secret
     ports:
       - "5080:8080" # Web Port
       - "5081:8081" # Management Port
@@ -250,12 +258,14 @@ services:
       - "5084:8084" # Catalog Port
       - "5044:1044" # Debug Port
     volumes:
-      - ../../assets/participants/participants.k8s.json:/etc/participants/participants.json
+      - ../../assets/participants/participants.vm.json:/etc/participants/participants.json
     depends_on:
       vault:
         condition: service_started 
       postgres:
         condition: service_healthy
+      identity-hub:
+        condition: service_started #TODO: service_healthy
 
   manufacturing-connector-dataplane:
     image: dataplane:latest
@@ -263,9 +273,9 @@ services:
     environment:
       - EDC_HOSTNAME=provider-manufacturing-connector-dataplane
       - EDC_RUNTIME_ID=provider-manufacturing-connector-dataplane
-      - EDC_PARTICIPANT_ID=did:web:provider-identityhub%3A7083:provider
-      - EDC_TRANSFER_PROXY_TOKEN_VERIFIER_PUBLICKEY_ALIAS=did:web:did:web:provider-identityhub%3A7083:provider#key-1
-      - EDC_TRANSFER_PROXY_TOKEN_SIGNER_PRIVATEKEY_ALIAS=did:web:did:web:provider-identityhub%3A7083:provider#key-1
+      - EDC_PARTICIPANT_ID=did:web:192.168.1.102%3A7083:provider
+      - EDC_TRANSFER_PROXY_TOKEN_VERIFIER_PUBLICKEY_ALIAS=did:web:did:web:192.168.1.102%3A7083:provider#key-1
+      - EDC_TRANSFER_PROXY_TOKEN_SIGNER_PRIVATEKEY_ALIAS=did:web:did:web:192.168.1.102%3A7083:provider#key-1
       - EDC_DPF_SELECTOR_URL=http://provider-manufacturing-connector-controlplane:8083/api/control/v1/dataplanes
       - WEB_HTTP_PORT=8080
       - WEB_HTTP_PATH=/api
@@ -281,7 +291,7 @@ services:
       - EDC_DATASOURCE_DEFAULT_PASSWORD=provider-manufacturing
       - EDC_SQL_SCHEMA_AUTOCREATE=true
       - EDC_IAM_STS_OAUTH_TOKEN_URL=http://provider-identity-hub:7084/api/sts
-      - EDC_IAM_STS_OAUTH_CLIENT_ID=did:web:provider-identityhub%3A7083:provider
+      - EDC_IAM_STS_OAUTH_CLIENT_ID=did:web:192.168.1.102%3A7083:provider
       - EDC_IAM_STS_OAUTH_CLIENT_SECRET_ALIAS=provider-participant-sts-client-secret
     ports:
       - "6080:8080" # Web Port
@@ -293,3 +303,7 @@ services:
         condition: service_started 
       postgres:
         condition: service_healthy
+      manufacturing-connector-controlplane:
+        condition: service_healthy
+      identity-hub:
+        condition: service_started #TODO: service_healthy

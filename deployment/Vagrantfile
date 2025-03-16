@@ -11,6 +11,7 @@ Vagrant.configure("2") do |config|
       consumer.vm.box_version = vm_box_version
       consumer.vm.hostname = "mvd-consumer-vm"
       consumer.vm.network "private_network", ip: "192.168.1.101"
+      consumer.vm.network "forwarded_port", guest: 5432, host: 5432, auto_correct: true
       consumer.vm.synced_folder "../", "/tmp/MinimumViableDataspace"
       consumer.vm.provider "virtualbox" do |vb|
         vb.name = "MVD-Consumer-VM"
@@ -29,6 +30,7 @@ Vagrant.configure("2") do |config|
       provider.vm.box_version = vm_box_version
       provider.vm.hostname = "mvd-provider-vm"
       provider.vm.network "private_network", ip: "192.168.1.102"
+      provider.vm.network "forwarded_port", guest: 5432, host: 5433, auto_correct: true
       provider.vm.synced_folder "../", "/tmp/MinimumViableDataspace"
       provider.vm.provider "virtualbox" do |vb|
         vb.name = "MVD-Provider-VM"

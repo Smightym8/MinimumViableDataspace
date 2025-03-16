@@ -63,6 +63,7 @@ services:
     ports:
       - "7080:7080"  # Web port
       - "7081:7081"  # Identity port
+      - "7082:7082"  # Presentation Port
       - "7083:7083"  # DID port
       - "7084:7084"  # STS Port
       - "1044:1044"  # Debug Port
@@ -109,15 +110,15 @@ services:
       - EDC_DATASOURCE_DEFAULT_USER=consumer
       - EDC_DATASOURCE_DEFAULT_PASSWORD=consumer
       - EDC_SQL_SCHEMA_AUTOCREATE=true
-      - EDC_IAM_STS_OAUTH_TOKEN_URL=http://consumer-identity-hub:7084/api/sts
+      - EDC_IAM_STS_OAUTH_TOKEN_URL=http://consumer-identity-hub:7084/api/sts/token
       - EDC_IAM_STS_OAUTH_CLIENT_ID=did:web:192.168.1.101%3A7083:consumer
       - EDC_IAM_STS_OAUTH_CLIENT_SECRET_ALIAS=did:web:192.168.1.101%3A7083:consumer-sts-client-secret
     ports:
-      - "4080:8080" # Web Port
-      - "4081:8081" # Management Port
-      - "4082:8082" # Protocol Port
-      - "4083:8083" # Control Port
-      - "4084:8084" # Catalog Port
+      - "8080:8080" # Web Port
+      - "8081:8081" # Management Port
+      - "8082:8082" # Protocol Port
+      - "8083:8083" # Control Port
+      - "8084:8084" # Catalog Port
       - "2044:1044" # Debug Port
     volumes:
       - ../../assets/participants/participants.vm.json:/etc/participants/participants.json
@@ -156,10 +157,10 @@ services:
       - EDC_IAM_STS_OAUTH_CLIENT_ID=did:web:192.168.1.101%3A7083:consumer
       - EDC_IAM_STS_OAUTH_CLIENT_SECRET_ALIAS=consumer-participant-sts-client-secret
     ports:
-      - "3080:8080" # Web Port
-      - "3083:8083" # Control Port
+      - "9080:8080" # Web Port
+      - "9083:8083" # Control Port
       - "11002:11002" # Public Port
-      - "3044:1044" # Debug Port
+      - "1045:1044" # Debug Port
     depends_on:
       vault:
         condition: service_started 

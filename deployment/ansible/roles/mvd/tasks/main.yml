@@ -14,8 +14,20 @@
     chdir: /home/vagrant/MinimumViableDataspace/deployment/docker/consumer
   when: "'consumer' in group_names"
 
+- name: Ensure seed-consumer-vm.sh is executable
+  file:
+    path: /home/vagrant/MinimumViableDataspace/seed-consumer-vm.sh
+    mode: '0755'
+  when: "'consumer' in group_names"
+
 - name: Start MinimumViableDataspace for Provider
   shell:
     cmd: docker compose up -d
     chdir: /home/vagrant/MinimumViableDataspace/deployment/docker/provider
+  when: "'provider' in group_names"
+
+- name: Ensure seed-provider-vm.sh is executable
+  file:
+    path: /home/vagrant/MinimumViableDataspace/seed-provider-vm.sh
+    mode: '0755'
   when: "'provider' in group_names"

@@ -20,6 +20,12 @@
     mode: '0755'
   when: "'consumer' in group_names"
 
+- name: Ensure Unix Line Endings for seed-consumer-vm.sh
+  shell:
+    cmd: dos2unix seed-consumer-vm.sh
+    chdir: /home/vagrant/MinimumViableDataspace
+  when: "'consumer' in group_names"
+
 - name: Start MinimumViableDataspace for Provider
   shell:
     cmd: docker compose up -d
@@ -30,4 +36,10 @@
   file:
     path: /home/vagrant/MinimumViableDataspace/seed-provider-vm.sh
     mode: '0755'
+  when: "'provider' in group_names"
+
+- name: Ensure Unix Line Endings for seed-provider-vm.sh
+  shell:
+    cmd: dos2unix seed-provider-vm.sh
+    chdir: /home/vagrant/MinimumViableDataspace
   when: "'provider' in group_names"

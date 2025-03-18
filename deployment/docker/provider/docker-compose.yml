@@ -2,6 +2,7 @@ services:
   postgres:
     image: postgres:16.3-alpine3.20
     container_name: provider-postgres
+    restart: always
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -19,6 +20,7 @@ services:
   vault:
     image: hashicorp/vault:latest
     container_name: provider-vault
+    restart: always
     environment:
       VAULT_DEV_ROOT_TOKEN_ID: "root"
       VAULT_DEV_LISTEN_ADDRESS: "0.0.0.0:8200"
@@ -33,6 +35,7 @@ services:
   identity-hub:
     image: identity-hub:latest
     container_name: provider-identity-hub
+    restart: always
     environment:
       - EDC_IH_IAM_ID=did:web:192.168.1.102%3A7083:provider
       - EDC_IAM_DID_WEB_USE_HTTPS=false
@@ -78,6 +81,7 @@ services:
   catalog-server:
     image: catalog-server:latest
     container_name: provider-catalog-server
+    restart: always
     environment:
       - EDC_IAM_ISSUER_ID=did:web:192.168.1.102%3A7083:provider
       - EDC_IAM_DID_WEB_USE_HTTPS=false
@@ -124,6 +128,7 @@ services:
   qna-connector-controlplane:
     image: controlplane:latest
     container_name: provider-qna-connector-controlplane 
+    restart: always
     environment:
       - EDC_PARTICIPANT_ID=did:web:192.168.1.102%3A7083:provider
       - EDC_IAM_ISSUER_ID=did:web:192.168.1.102%3A7083:provider
@@ -177,6 +182,7 @@ services:
   qna-connector-dataplane:
     image: dataplane:latest
     container_name: provider-qna-connector-dataplane
+    restart: always
     environment:
       - EDC_HOSTNAME=provider-qna-connector-dataplane
       - EDC_RUNTIME_ID=provider-qna-connector-dataplane
@@ -218,6 +224,7 @@ services:
   manufacturing-connector-controlplane:
     image: controlplane:latest
     container_name: provider-manufacturing-connector-controlplane 
+    restart: always
     environment:
       - EDC_PARTICIPANT_ID=did:web:192.168.1.102%3A7083:provider
       - EDC_IAM_ISSUER_ID=did:web:192.168.1.102%3A7083:provider
@@ -271,6 +278,7 @@ services:
   manufacturing-connector-dataplane:
     image: dataplane:latest
     container_name: provider-manufacturing-connector-dataplane
+    restart: always
     environment:
       - EDC_HOSTNAME=provider-manufacturing-connector-dataplane
       - EDC_RUNTIME_ID=provider-manufacturing-connector-dataplane

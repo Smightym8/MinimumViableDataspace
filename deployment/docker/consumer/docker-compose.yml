@@ -2,6 +2,7 @@ services:
   postgres:
     image: postgres:16.3-alpine3.20
     container_name: consumer-postgres
+    restart: always
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -19,6 +20,7 @@ services:
   vault:
     image: hashicorp/vault:latest
     container_name: consumer-vault
+    restart: always
     environment:
       VAULT_DEV_ROOT_TOKEN_ID: "root"
       VAULT_DEV_LISTEN_ADDRESS: "0.0.0.0:8200"
@@ -33,6 +35,7 @@ services:
   identity-hub:
     image: identity-hub:latest
     container_name: consumer-identity-hub
+    restart: always
     environment:
       - EDC_IH_IAM_ID=did:web:192.168.1.101%3A7083:consumer
       - EDC_IAM_DID_WEB_USE_HTTPS=false
@@ -78,6 +81,7 @@ services:
   connector-controlplane:
     image: controlplane:latest
     container_name: consumer-connector-controlplane 
+    restart: always
     environment:
       - EDC_PARTICIPANT_ID=did:web:192.168.1.101%3A7083:consumer
       - EDC_IAM_ISSUER_ID=did:web:192.168.1.101%3A7083:consumer
@@ -133,6 +137,7 @@ services:
   connector-dataplane:
     image: dataplane:latest
     container_name: consumer-connector-dataplane
+    restart: always
     environment:
       - EDC_HOSTNAME=consumer-connector-dataplane 
       - EDC_RUNTIME_ID=consumer-connector-dataplane

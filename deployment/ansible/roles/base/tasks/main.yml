@@ -1,0 +1,33 @@
+- name: Install OpenJDK 17 JDK
+  apt:
+    name: openjdk-17-jdk
+    state: latest
+    update_cache: yes
+
+- name: Install jq
+  apt:
+    name: jq
+    state: latest
+    update_cache: yes
+
+- name: Install dos2unix
+  apt:
+    name: dos2unix
+    state: latest
+    update_cache: yes
+
+- name: Download and install nvm
+  shell: curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.2/install.sh | bash
+  args:
+    executable: /bin/bash
+  become_user: vagrant
+
+- name: Install latest LTS version of Node.js and newman
+  shell: |
+    . /home/vagrant/.nvm/nvm.sh
+    nvm install --lts
+    nvm use --lts
+    npm install -g newman
+  args:
+    chdir: /home/vagrant
+    executable: /bin/bash

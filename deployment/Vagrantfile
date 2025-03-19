@@ -1,67 +1,70 @@
 Vagrant.configure("2") do |config|
-    vm_box = "ubuntu/jammy64"
-    vm_box_version = "20241002.0.0"
-    vm_memory = 2048
-    vm_cpus = 1
+  vm_box = "ubuntu/jammy64"
+  vm_box_version = "20241002.0.0"
+  vm_memory = 4096
+  vm_cpus = 2
 
-    # Consumer VM
-    config.vm.define "mvd-consumer-vm" do |consumer|
-      consumer.vm.box = vm_box
-      consumer.vm.box_version = vm_box_version
-      consumer.vm.hostname = "mvd-consumer-vm"
-      consumer.vm.network "private_network", ip: "192.168.1.101"
-      consumer.vm.synced_folder "../", "/tmp/MinimumViableDataspace"
-      consumer.vm.provider "virtualbox" do |vb|
-        vb.name = "MVD-Consumer-VM"
+  # TODO: Find a way to reduce disk size of the vms
+  # Consumer VM
+  config.vm.define "mvd-consumer-vm" do |consumer|
+    consumer.vm.box = vm_box
+    consumer.vm.box_version = vm_box_version
+    consumer.vm.hostname = "mvd-consumer-vm"
+    consumer.vm.network "private_network", ip: "192.168.1.101"
+    consumer.vm.network "forwarded_port", guest: 5432, host: 5432, auto_correct: true
+    consumer.vm.synced_folder "../", "/tmp/MinimumViableDataspace"
+    consumer.vm.provider "virtualbox" do |vb|
+      vb.name = "MVD-Consumer-VM"
+      vb.memory = vm_memory
+      vb.cpus = vm_cpus
+    end
+    consumer.vm.provision "shell", inline: <<-SHELL
+        cp -r /tmp/MinimumViableDataspace /home/vagrant/MinimumViableDataspace
+        chown -R vagrant:vagrant /home/vagrant/MinimumViableDataspace
+    SHELL
+  end
+
+  # Provider VM
+  config.vm.define "mvd-provider-vm" do |provider|
+    provider.vm.box = vm_box
+    provider.vm.box_version = vm_box_version
+    provider.vm.hostname = "mvd-provider-vm"
+    provider.vm.network "private_network", ip: "192.168.1.102"
+    provider.vm.network "forwarded_port", guest: 5432, host: 5433, auto_correct: true
+    provider.vm.synced_folder "../", "/tmp/MinimumViableDataspace"
+    provider.vm.provider "virtualbox" do |vb|
+      vb.name = "MVD-Provider-VM"
+      vb.memory = vm_memory
+      vb.cpus = vm_cpus
+    end
+    provider.vm.provision "shell", inline: <<-SHELL
+        cp -r /tmp/MinimumViableDataspace /home/vagrant/MinimumViableDataspace
+        chown -R vagrant:vagrant /home/vagrant/MinimumViableDataspace
+    SHELL
+  end
+
+  # Ansible Control VM
+  config.vm.define "mvd-ansible-control-vm" do |ansible|
+    ansible.vm.box = vm_box
+    ansible.vm.box_version = vm_box_version
+    ansible.vm.hostname = "mvd-ansible-control-vm"
+    ansible.vm.network "private_network", ip: "192.168.1.100"
+    ansible.vm.synced_folder "./ansible", "/home/vagrant/ansible"
+    ansible.vm.synced_folder "./.vagrant", "/home/vagrant/.vagrant"
+    ansible.vm.provider "virtualbox" do |vb|
+        vb.name = "MVD-Ansible-Control-VM"
         vb.memory = vm_memory
         vb.cpus = vm_cpus
-      end
-      consumer.vm.provision "shell", inline: <<-SHELL
-          cp -r /tmp/MinimumViableDataspace /home/vagrant/MinimumViableDataspace
-          chown -R vagrant:vagrant /home/vagrant/MinimumViableDataspace
-      SHELL
     end
-  
-    # Provider VM
-    config.vm.define "mvd-provider-vm" do |provider|
-      provider.vm.box = vm_box
-      provider.vm.box_version = vm_box_version
-      provider.vm.hostname = "mvd-provider-vm"
-      provider.vm.network "private_network", ip: "192.168.1.102"
-      provider.vm.synced_folder "../", "/tmp/MinimumViableDataspace"
-      provider.vm.provider "virtualbox" do |vb|
-        vb.name = "MVD-Provider-VM"
-        vb.memory = vm_memory
-        vb.cpus = vm_cpus
-      end
-      provider.vm.provision "shell", inline: <<-SHELL
-          cp -r /tmp/MinimumViableDataspace /home/vagrant/MinimumViableDataspace
-          chown -R vagrant:vagrant /home/vagrant/MinimumViableDataspace
-      SHELL
-    end
-
-    # Ansible Control VM
-    config.vm.define "mvd-ansible-control-vm" do |ansible|
-      ansible.vm.box = vm_box
-      ansible.vm.box_version = vm_box_version
-      ansible.vm.hostname = "mvd-ansible-control-vm"
-      ansible.vm.network "private_network", ip: "192.168.1.100"
-      ansible.vm.synced_folder "./ansible", "/home/vagrant/ansible"
-      ansible.vm.synced_folder "./.vagrant", "/home/vagrant/.vagrant"
-      ansible.vm.provider "virtualbox" do |vb|
-          vb.name = "MVD-Ansible-Control-VM"
-          vb.memory = vm_memory
-          vb.cpus = vm_cpus
-      end
-      ansible.vm.provision "shell", inline: <<-SHELL
-          sudo apt update -y
-          sudo apt install -y software-properties-common
-          sudo add-apt-repository --yes --update ppa:ansible/ansible
-          sudo apt install -y ansible
-          chmod 600 /home/vagrant/.vagrant/machines/mvd-consumer-vm/virtualbox/private_key
-          chmod 600 /home/vagrant/.vagrant/machines/mvd-provider-vm/virtualbox/private_key
-          cd /home/vagrant/ansible
-          ansible-playbook -i inventory main.yml
-      SHELL
-    end
-  end  
+    ansible.vm.provision "shell", inline: <<-SHELL
+        sudo apt update -y
+        sudo apt install -y software-properties-common
+        sudo add-apt-repository --yes --update ppa:ansible/ansible
+        sudo apt install -y ansible
+        chmod 600 /home/vagrant/.vagrant/machines/mvd-consumer-vm/virtualbox/private_key
+        chmod 600 /home/vagrant/.vagrant/machines/mvd-provider-vm/virtualbox/private_key
+        cd /home/vagrant/ansible
+        ansible-playbook -i inventory main.yml
+    SHELL
+  end
+end  

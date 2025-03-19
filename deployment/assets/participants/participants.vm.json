@@ -1,0 +1,4 @@
+{
+    "consumer-corp": "did:web:192.168.1.101%3A7083:consumer",
+    "provider-corp": "did:web:192.168.1.102%3A7083:provider"
+}

@@ -46,8 +46,8 @@ services:
       - WEB_HTTP_IDENTITY_PORT=7081
       - WEB_HTTP_IDENTITY_PATH=/api/identity
       - WEB_HTTP_IDENTITY_AUTH_KEY=password
-      - WEB_HTTP_PRESENTATION_PORT=7082
-      - WEB_HTTP_PRESENTATION_PATH=/api/presentation
+      - WEB_HTTP_CREDENTIALS_PORT=7082
+      - WEB_HTTP_CREDENTIALS_PATH=/api/credentials
       - WEB_HTTP_DID_PORT=7083
       - WEB_HTTP_DID_PATH=/
       - WEB_HTTP_STS_PORT=7084
@@ -66,7 +66,7 @@ services:
     ports:
       - "7080:7080"  # Web port
       - "7081:7081"  # Identity port
-      - "7082:7082"  # Presentation Port
+      - "7082:7082"  # Credentials Port
       - "7083:7083"  # DID port
       - "7084:7084"  # STS Port
       - "1044:1044"  # Debug Port

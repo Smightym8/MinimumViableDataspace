@@ -77,8 +77,8 @@ services:
       - WEB_HTTP_IDENTITY_PORT=7081
       - WEB_HTTP_IDENTITY_PATH=/api/identity
       - WEB_HTTP_IDENTITY_AUTH_KEY=password
-      - WEB_HTTP_CREDENTIALS_PORT=7082
-      - WEB_HTTP_CREDENTIALS_PATH=/api/credentials
+      - WEB_HTTP_PRESENTATION_PORT=7082
+      - WEB_HTTP_PRESENTATION_PATH=/api/presentation
       - WEB_HTTP_DID_PORT=7083
       - WEB_HTTP_DID_PATH=/
       - WEB_HTTP_STS_PORT=7084
@@ -93,6 +93,8 @@ services:
       - EDC_DATASOURCE_DEFAULT_USER=identity
       - EDC_DATASOURCE_DEFAULT_PASSWORD=identity
       - EDC_SQL_SCHEMA_AUTOCREATE=true
+      - EDC_STS_ACCOUNT_API_URL=http://provider-sts:8081/api
+      - EDC_STS_ACCOUNTS_API_AUTH_HEADER_VALUE="password"
       - EDC_IAM_ACCESSTOKEN_JTI_VALIDATION=true
     ports:
       - "7080:7080"  # Web port
@@ -108,6 +110,8 @@ services:
         condition: service_started 
       postgres:
         condition: service_healthy
+      sts:
+        condition: service_started
 
   catalog-server:
     image: catalog-server:latest
@@ -137,7 +141,7 @@ services:
       - EDC_DATASOURCE_DEFAULT_USER=catalog_server
       - EDC_DATASOURCE_DEFAULT_PASSWORD=catalog_server
       - EDC_SQL_SCHEMA_AUTOCREATE=true
-      - EDC_IAM_STS_OAUTH_TOKEN_URL=http://provider-identity-hub:7084/api/sts/token
+      - EDC_IAM_STS_OAUTH_TOKEN_URL=http://provider-sts:8081/api/token
       - EDC_IAM_STS_OAUTH_CLIENT_ID=did:web:192.168.1.102%3A7083:provider
       - EDC_IAM_STS_OAUTH_CLIENT_SECRET_ALIAS=did:web:192.168.1.102%3A7083:provider-sts-client-secret
     ports:
@@ -190,7 +194,7 @@ services:
       - EDC_DATASOURCE_DEFAULT_USER=qna
       - EDC_DATASOURCE_DEFAULT_PASSWORD=provider-qna
       - EDC_SQL_SCHEMA_AUTOCREATE=true
-      - EDC_IAM_STS_OAUTH_TOKEN_URL=http://provider-identity-hub:7084/api/sts/token
+      - EDC_IAM_STS_OAUTH_TOKEN_URL=http://provider-sts:8081/api/token
       - EDC_IAM_STS_OAUTH_CLIENT_ID=did:web:192.168.1.102%3A7083:provider
       - EDC_IAM_STS_OAUTH_CLIENT_SECRET_ALIAS=did:web:192.168.1.102%3A7083:provider-sts-client-secret
     ports:
@@ -234,7 +238,7 @@ services:
       - EDC_DATASOURCE_DEFAULT_USER=qna
       - EDC_DATASOURCE_DEFAULT_PASSWORD=provider-qna
       - EDC_SQL_SCHEMA_AUTOCREATE=true
-      - EDC_IAM_STS_OAUTH_TOKEN_URL=http://provider-identity-hub:7084/api/sts
+      - EDC_IAM_STS_OAUTH_TOKEN_URL=http://provider-sts:8081/api/token
       - EDC_IAM_STS_OAUTH_CLIENT_ID=did:web:192.168.1.102%3A7083:provider
       - EDC_IAM_STS_OAUTH_CLIENT_SECRET_ALIAS=provider-participant-sts-client-secret
     ports:
@@ -286,7 +290,7 @@ services:
       - EDC_DATASOURCE_DEFAULT_USER=manufacturing
       - EDC_DATASOURCE_DEFAULT_PASSWORD=provider-manufacturing
       - EDC_SQL_SCHEMA_AUTOCREATE=true
-      - EDC_IAM_STS_OAUTH_TOKEN_URL=http://provider-identity-hub:7084/api/sts/token
+      - EDC_IAM_STS_OAUTH_TOKEN_URL=http://provider-sts:8081/api/token
       - EDC_IAM_STS_OAUTH_CLIENT_ID=did:web:192.168.1.102%3A7083:provider
       - EDC_IAM_STS_OAUTH_CLIENT_SECRET_ALIAS=did:web:192.168.1.102%3A7083:provider-sts-client-secret
     ports:
@@ -330,7 +334,7 @@ services:
       - EDC_DATASOURCE_DEFAULT_USER=manufacturing
       - EDC_DATASOURCE_DEFAULT_PASSWORD=provider-manufacturing
       - EDC_SQL_SCHEMA_AUTOCREATE=true
-      - EDC_IAM_STS_OAUTH_TOKEN_URL=http://provider-identity-hub:7084/api/sts
+      - EDC_IAM_STS_OAUTH_TOKEN_URL=http://provider-sts:8081/api/token
       - EDC_IAM_STS_OAUTH_CLIENT_ID=did:web:192.168.1.102%3A7083:provider
       - EDC_IAM_STS_OAUTH_CLIENT_SECRET_ALIAS=provider-participant-sts-client-secret
     ports:

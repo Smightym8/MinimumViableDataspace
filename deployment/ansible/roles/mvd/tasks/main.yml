@@ -17,7 +17,7 @@
 - name: Ensure seed-consumer-vm.sh is executable
   file:
     path: /home/vagrant/MinimumViableDataspace/seed-consumer-vm.sh
-    mode: '0755'
+    mode: "0755"
   when: "'consumer' in group_names"
 
 - name: Ensure Unix Line Endings for seed-consumer-vm.sh
@@ -35,11 +35,23 @@
 - name: Ensure seed-provider-vm.sh is executable
   file:
     path: /home/vagrant/MinimumViableDataspace/seed-provider-vm.sh
-    mode: '0755'
+    mode: "0755"
   when: "'provider' in group_names"
 
 - name: Ensure Unix Line Endings for seed-provider-vm.sh
   shell:
     cmd: dos2unix seed-provider-vm.sh
+    chdir: /home/vagrant/MinimumViableDataspace
+  when: "'provider' in group_names"
+
+- name: Seed Consumer
+  shell:
+    cmd: ./seed-consumer-vm.sh > seed-output.txt
+    chdir: /home/vagrant/MinimumViableDataspace
+  when: "'consumer' in group_names"
+
+- name: Seed Provider
+  shell:
+    cmd: ./seed-provider-vm.sh > seed-output.txt
     chdir: /home/vagrant/MinimumViableDataspace
   when: "'provider' in group_names"

@@ -272,7 +272,7 @@ services:
       - EDC_SQL_SCHEMA_AUTOCREATE=true
       - EDC_IAM_STS_OAUTH_TOKEN_URL=http://provider-sts:8082/api/sts/token
       - EDC_IAM_STS_OAUTH_CLIENT_ID=did:web:192.168.1.102%3A7083:provider
-      - EDC_IAM_STS_OAUTH_CLIENT_SECRET_ALIAS=provider-participant-sts-client-secret
+      - EDC_IAM_STS_OAUTH_CLIENT_SECRET_ALIAS=did:web:192.168.1.102%3A7083:provider-sts-client-secret
     ports:
       - "3080:8080" # Web Port
       - "3083:8083" # Control Port
@@ -381,7 +381,7 @@ services:
       - EDC_SQL_SCHEMA_AUTOCREATE=true
       - EDC_IAM_STS_OAUTH_TOKEN_URL=http://provider-sts:8082/api/sts/token
       - EDC_IAM_STS_OAUTH_CLIENT_ID=did:web:192.168.1.102%3A7083:provider
-      - EDC_IAM_STS_OAUTH_CLIENT_SECRET_ALIAS=provider-participant-sts-client-secret
+      - EDC_IAM_STS_OAUTH_CLIENT_SECRET_ALIAS=did:web:192.168.1.102%3A7083:provider-sts-client-secret
     ports:
       - "6080:8080" # Web Port
       - "6083:8083" # Control Port

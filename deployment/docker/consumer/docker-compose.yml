@@ -1,5 +1,3 @@
-#TODO: Update environment variables
-
 services:
   postgres:
     image: postgres:16.3-alpine3.20
@@ -18,7 +16,7 @@ services:
       retries: 5
       start_period: 5s
       timeout: 30s
-  
+
   vault:
     image: hashicorp/vault:latest
     container_name: consumer-vault
@@ -26,13 +24,20 @@ services:
     environment:
       VAULT_DEV_ROOT_TOKEN_ID: "root"
       VAULT_DEV_LISTEN_ADDRESS: "0.0.0.0:8200"
+      VAULT_ADDR: "http://localhost:8200"
     ports:
       - "8200:8200"
     cap_add:
       - IPC_LOCK
     entrypoint: ["/bin/sh", "-c"]
     command:
-      - vault server -dev 
+      - vault server -dev
+    healthcheck:
+      test: ["CMD", "vault", "status"]
+      interval: 10s
+      retries: 5
+      start_period: 5s
+      timeout: 30s
 
   sts:
     image: sts:latest
@@ -53,13 +58,20 @@ services:
       - EDC_VAULT_HASHICORP_URL=http://consumer-vault:8200
       - EDC_VAULT_HASHICORP_TOKEN=root
     ports:
-      - "6080:8080"  # Web port
-      - "6081:8081"  # Accounts port
-      - "6082:8082"  # STS port
-      - "1046:1046"  # Debug Port
+      - "6080:8080" # Web port
+      - "6081:8081" # Accounts port
+      - "6082:8082" # STS port
+      - "1046:1046" # Debug Port
+    healthcheck:
+      test:
+        ["CMD", "curl", "-f", "http://localhost:8080/internal/check/readiness"]
+      interval: 5s
+      timeout: 30s
+      retries: 10
+      start_period: 5s
     depends_on:
       vault:
-        condition: service_started 
+        condition: service_healthy
       postgres:
         condition: service_healthy
 
@@ -97,25 +109,31 @@ services:
       - EDC_STS_ACCOUNTS_API_AUTH_HEADER_VALUE=password
       - EDC_IAM_ACCESSTOKEN_JTI_VALIDATION=true
     ports:
-      - "7080:7080"  # Web port
-      - "7081:7081"  # Identity port
-      - "7082:7082"  # Presentation Port
-      - "7083:7083"  # DID port
-      - "7084:7084"  # STS Port
-      - "1044:1044"  # Debug Port
+      - "7080:7080" # Web port
+      - "7081:7081" # Identity port
+      - "7082:7082" # Presentation Port
+      - "7083:7083" # DID port
+      - "7084:7084" # STS Port
+      - "1044:1044" # Debug Port
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7080/api/check/readiness"]
+      interval: 5s
+      timeout: 30s
+      retries: 10
+      start_period: 5s
     volumes:
       - ../../assets/credentials/vm/consumer:/etc/credentials/
     depends_on:
       vault:
-        condition: service_started 
+        condition: service_healthy
       postgres:
         condition: service_healthy
       sts:
-        condition: service_started
+        condition: service_healthy
 
   connector-controlplane:
     image: controlplane:latest
-    container_name: consumer-connector-controlplane 
+    container_name: consumer-connector-controlplane
     restart: always
     environment:
       - EDC_PARTICIPANT_ID=did:web:192.168.1.101%3A7083:consumer
@@ -159,22 +177,28 @@ services:
       - "8083:8083" # Control Port
       - "8084:8084" # Catalog Port
       - "2044:1044" # Debug Port
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/check/readiness"]
+      interval: 5s
+      timeout: 30s
+      retries: 10
+      start_period: 5s
     volumes:
       - ../../assets/participants/participants.vm.json:/etc/participants/participants.json
     depends_on:
       vault:
-        condition: service_started 
+        condition: service_healthy
       postgres:
         condition: service_healthy
-      identity-hub:
-        condition: service_started # TODO: service_healthy
+      sts:
+        condition: service_healthy
 
   connector-dataplane:
     image: dataplane:latest
     container_name: consumer-connector-dataplane
     restart: always
     environment:
-      - EDC_HOSTNAME=consumer-connector-dataplane 
+      - EDC_HOSTNAME=consumer-connector-dataplane
       - EDC_RUNTIME_ID=consumer-connector-dataplane
       - EDC_PARTICIPANT_ID=did:web:192.168.1.101%3A7083:consumer
       - EDC_TRANSFER_PROXY_TOKEN_VERIFIER_PUBLICKEY_ALIAS=did:web:192.168.1.101%3A7083:consumer#key-1
@@ -203,8 +227,10 @@ services:
       - "1045:1044" # Debug Port
     depends_on:
       vault:
-        condition: service_started 
+        condition: service_healthy
       postgres:
         condition: service_healthy
       connector-controlplane:
+        condition: service_healthy
+      sts:
         condition: service_healthy

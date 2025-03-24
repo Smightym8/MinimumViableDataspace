@@ -1,5 +1,3 @@
-#TODO: Update environment variables
-
 services:
   postgres:
     image: postgres:16.3-alpine3.20
@@ -26,6 +24,7 @@ services:
     environment:
       VAULT_DEV_ROOT_TOKEN_ID: "root"
       VAULT_DEV_LISTEN_ADDRESS: "0.0.0.0:8200"
+      VAULT_ADDR: "http://localhost:8200"
     ports:
       - "8200:8200"
     cap_add:
@@ -33,6 +32,12 @@ services:
     entrypoint: ["/bin/sh", "-c"]
     command:
       - vault server -dev
+    healthcheck:
+      test: ["CMD", "vault", "status"]
+      interval: 10s
+      retries: 5
+      start_period: 5s
+      timeout: 30s
 
   sts:
     image: sts:latest
@@ -53,16 +58,23 @@ services:
       - EDC_VAULT_HASHICORP_URL=http://provider-vault:8200
       - EDC_VAULT_HASHICORP_TOKEN=root
     ports:
-      - "8080:8080"  # Web port
-      - "8081:8081"  # Accounts port
-      - "8082:8082"  # STS port
-      - "1046:1046"  # Debug Port
+      - "8080:8080" # Web port
+      - "8081:8081" # Accounts port
+      - "8082:8082" # STS port
+      - "1046:1046" # Debug Port
+    healthcheck:
+      test:
+        ["CMD", "curl", "-f", "http://localhost:8080/internal/check/readiness"]
+      interval: 5s
+      timeout: 30s
+      retries: 10
+      start_period: 5s
     depends_on:
       vault:
-        condition: service_started 
+        condition: service_healthy
       postgres:
         condition: service_healthy
-  
+
   identity-hub:
     image: identity-hub:latest
     container_name: provider-identity-hub
@@ -94,24 +106,30 @@ services:
       - EDC_DATASOURCE_DEFAULT_PASSWORD=identity
       - EDC_SQL_SCHEMA_AUTOCREATE=true
       - EDC_STS_ACCOUNT_API_URL=http://provider-sts:8081/api
-      - EDC_STS_ACCOUNTS_API_AUTH_HEADER_VALUE="password"
+      - EDC_STS_ACCOUNTS_API_AUTH_HEADER_VALUE=password
       - EDC_IAM_ACCESSTOKEN_JTI_VALIDATION=true
     ports:
-      - "7080:7080"  # Web port
-      - "7081:7081"  # Identity port
-      - "7082:7082"  # Credentials Port
-      - "7083:7083"  # DID port
-      - "7084:7084"  # STS Port
-      - "1044:1044"  # Debug Port
+      - "7080:7080" # Web port
+      - "7081:7081" # Identity port
+      - "7082:7082" # Credentials Port
+      - "7083:7083" # DID port
+      - "7084:7084" # STS Port
+      - "1044:1044" # Debug Port
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7080/api/check/readiness"]
+      interval: 5s
+      timeout: 30s
+      retries: 10
+      start_period: 5s
     volumes:
       - ../../assets/credentials/vm/provider:/etc/credentials/
     depends_on:
       vault:
-        condition: service_started 
+        condition: service_healthy
       postgres:
         condition: service_healthy
       sts:
-        condition: service_started
+        condition: service_healthy
 
   catalog-server:
     image: catalog-server:latest
@@ -145,24 +163,30 @@ services:
       - EDC_IAM_STS_OAUTH_CLIENT_ID=did:web:192.168.1.102%3A7083:provider
       - EDC_IAM_STS_OAUTH_CLIENT_SECRET_ALIAS=did:web:192.168.1.102%3A7083:provider-sts-client-secret
     ports:
-      - "9080:8080"  # Web port
-      - "9081:8081"  # Management port
-      - "9082:8082"  # Protocol port
-      - "9083:8083"  # Control Port
-      - "2044:1044"  # Debug Port
+      - "9080:8080" # Web port
+      - "9081:8081" # Management port
+      - "9082:8082" # Protocol port
+      - "9083:8083" # Control Port
+      - "2044:1044" # Debug Port
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/check/readiness"]
+      interval: 5s
+      timeout: 30s
+      retries: 10
+      start_period: 5s
     volumes:
       - ../../assets/participants/participants.vm.json:/etc/participants/participants.json
     depends_on:
       vault:
-        condition: service_started 
+        condition: service_healthy
       postgres:
         condition: service_healthy
-      identity-hub:
-        condition: service_started #TODO: service_healthy
+      sts:
+        condition: service_healthy
 
   qna-connector-controlplane:
     image: controlplane:latest
-    container_name: provider-qna-connector-controlplane 
+    container_name: provider-qna-connector-controlplane
     restart: always
     environment:
       - EDC_PARTICIPANT_ID=did:web:192.168.1.102%3A7083:provider
@@ -204,15 +228,21 @@ services:
       - "4083:8083" # Control Port
       - "4084:8084" # Catalog Port
       - "4044:1044" # Debug Port
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/check/readiness"]
+      interval: 5s
+      timeout: 30s
+      retries: 10
+      start_period: 5s
     volumes:
       - ../../assets/participants/participants.vm.json:/etc/participants/participants.json
     depends_on:
       vault:
-        condition: service_started 
+        condition: service_healthy
       postgres:
         condition: service_healthy
-      identity-hub:
-        condition: service_started #TODO: service_healthy
+      sts:
+        condition: service_healthy
 
   qna-connector-dataplane:
     image: dataplane:latest
@@ -246,19 +276,25 @@ services:
       - "3083:8083" # Control Port
       - "11002:11002" # Public Port
       - "3044:1044" # Debug Port
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/check/readiness"]
+      interval: 5s
+      timeout: 30s
+      retries: 10
+      start_period: 5s
     depends_on:
       vault:
-        condition: service_started 
+        condition: service_healthy
       postgres:
         condition: service_healthy
       qna-connector-controlplane:
         condition: service_healthy
-      identity-hub:
-        condition: service_started #TODO: service_healthy
+      sts:
+        condition: service_healthy
 
   manufacturing-connector-controlplane:
     image: controlplane:latest
-    container_name: provider-manufacturing-connector-controlplane 
+    container_name: provider-manufacturing-connector-controlplane
     restart: always
     environment:
       - EDC_PARTICIPANT_ID=did:web:192.168.1.102%3A7083:provider
@@ -300,15 +336,21 @@ services:
       - "5083:8083" # Control Port
       - "5084:8084" # Catalog Port
       - "5044:1044" # Debug Port
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/check/readiness"]
+      interval: 5s
+      timeout: 30s
+      retries: 10
+      start_period: 5s
     volumes:
       - ../../assets/participants/participants.vm.json:/etc/participants/participants.json
     depends_on:
       vault:
-        condition: service_started 
+        condition: service_healthy
       postgres:
         condition: service_healthy
-      identity-hub:
-        condition: service_started #TODO: service_healthy
+      sts:
+        condition: service_healthy
 
   manufacturing-connector-dataplane:
     image: dataplane:latest
@@ -342,12 +384,18 @@ services:
       - "6083:8083" # Control Port
       - "22002:11002" # Public Port
       - "6044:1044" # Debug Port
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/check/readiness"]
+      interval: 5s
+      timeout: 30s
+      retries: 10
+      start_period: 5s
     depends_on:
       vault:
-        condition: service_started 
+        condition: service_healthy
       postgres:
         condition: service_healthy
       manufacturing-connector-controlplane:
         condition: service_healthy
-      identity-hub:
-        condition: service_started #TODO: service_healthy
+      sts:
+        condition: service_healthy

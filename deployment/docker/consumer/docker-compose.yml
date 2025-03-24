@@ -167,7 +167,7 @@ services:
       - EDC_DATASOURCE_DEFAULT_USER=consumer
       - EDC_DATASOURCE_DEFAULT_PASSWORD=consumer
       - EDC_SQL_SCHEMA_AUTOCREATE=true
-      - EDC_IAM_STS_OAUTH_TOKEN_URL=http://consumer-sts:8081/api/sts/token
+      - EDC_IAM_STS_OAUTH_TOKEN_URL=http://consumer-sts:8082/api/sts/token
       - EDC_IAM_STS_OAUTH_CLIENT_ID=did:web:192.168.1.101%3A7083:consumer
       - EDC_IAM_STS_OAUTH_CLIENT_SECRET_ALIAS=did:web:192.168.1.101%3A7083:consumer-sts-client-secret
     ports:
@@ -217,7 +217,7 @@ services:
       - EDC_DATASOURCE_DEFAULT_USER=consumer
       - EDC_DATASOURCE_DEFAULT_PASSWORD=consumer
       - EDC_SQL_SCHEMA_AUTOCREATE=true
-      - EDC_IAM_STS_OAUTH_TOKEN_URL=http://consumer-sts:8081/api/sts/token
+      - EDC_IAM_STS_OAUTH_TOKEN_URL=http://consumer-sts:8082/api/sts/token
       - EDC_IAM_STS_OAUTH_CLIENT_ID=did:web:192.168.1.101%3A7083:consumer
       - EDC_IAM_STS_OAUTH_CLIENT_SECRET_ALIAS=consumer-participant-sts-client-secret
     ports:

@@ -159,7 +159,7 @@ services:
       - EDC_DATASOURCE_DEFAULT_USER=catalog_server
       - EDC_DATASOURCE_DEFAULT_PASSWORD=catalog_server
       - EDC_SQL_SCHEMA_AUTOCREATE=true
-      - EDC_IAM_STS_OAUTH_TOKEN_URL=http://provider-sts:8081/api/token
+      - EDC_IAM_STS_OAUTH_TOKEN_URL=http://provider-sts:8082/api/sts/token
       - EDC_IAM_STS_OAUTH_CLIENT_ID=did:web:192.168.1.102%3A7083:provider
       - EDC_IAM_STS_OAUTH_CLIENT_SECRET_ALIAS=did:web:192.168.1.102%3A7083:provider-sts-client-secret
     ports:
@@ -218,7 +218,7 @@ services:
       - EDC_DATASOURCE_DEFAULT_USER=qna
       - EDC_DATASOURCE_DEFAULT_PASSWORD=provider-qna
       - EDC_SQL_SCHEMA_AUTOCREATE=true
-      - EDC_IAM_STS_OAUTH_TOKEN_URL=http://provider-sts:8081/api/token
+      - EDC_IAM_STS_OAUTH_TOKEN_URL=http://provider-sts:8082/api/sts/token
       - EDC_IAM_STS_OAUTH_CLIENT_ID=did:web:192.168.1.102%3A7083:provider
       - EDC_IAM_STS_OAUTH_CLIENT_SECRET_ALIAS=did:web:192.168.1.102%3A7083:provider-sts-client-secret
     ports:
@@ -268,7 +268,7 @@ services:
       - EDC_DATASOURCE_DEFAULT_USER=qna
       - EDC_DATASOURCE_DEFAULT_PASSWORD=provider-qna
       - EDC_SQL_SCHEMA_AUTOCREATE=true
-      - EDC_IAM_STS_OAUTH_TOKEN_URL=http://provider-sts:8081/api/token
+      - EDC_IAM_STS_OAUTH_TOKEN_URL=http://provider-sts:8082/api/sts/token
       - EDC_IAM_STS_OAUTH_CLIENT_ID=did:web:192.168.1.102%3A7083:provider
       - EDC_IAM_STS_OAUTH_CLIENT_SECRET_ALIAS=provider-participant-sts-client-secret
     ports:
@@ -326,7 +326,7 @@ services:
       - EDC_DATASOURCE_DEFAULT_USER=manufacturing
       - EDC_DATASOURCE_DEFAULT_PASSWORD=provider-manufacturing
       - EDC_SQL_SCHEMA_AUTOCREATE=true
-      - EDC_IAM_STS_OAUTH_TOKEN_URL=http://provider-sts:8081/api/token
+      - EDC_IAM_STS_OAUTH_TOKEN_URL=http://provider-sts:8082/api/sts/token
       - EDC_IAM_STS_OAUTH_CLIENT_ID=did:web:192.168.1.102%3A7083:provider
       - EDC_IAM_STS_OAUTH_CLIENT_SECRET_ALIAS=did:web:192.168.1.102%3A7083:provider-sts-client-secret
     ports:
@@ -376,7 +376,7 @@ services:
       - EDC_DATASOURCE_DEFAULT_USER=manufacturing
       - EDC_DATASOURCE_DEFAULT_PASSWORD=provider-manufacturing
       - EDC_SQL_SCHEMA_AUTOCREATE=true
-      - EDC_IAM_STS_OAUTH_TOKEN_URL=http://provider-sts:8081/api/token
+      - EDC_IAM_STS_OAUTH_TOKEN_URL=http://provider-sts:8082/api/sts/token
       - EDC_IAM_STS_OAUTH_CLIENT_ID=did:web:192.168.1.102%3A7083:provider
       - EDC_IAM_STS_OAUTH_CLIENT_SECRET_ALIAS=provider-participant-sts-client-secret
     ports:

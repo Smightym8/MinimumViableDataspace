@@ -136,6 +136,7 @@ services:
     container_name: provider-catalog-server
     restart: always
     environment:
+      - EDC_API_AUTH_KEY=password
       - EDC_IAM_ISSUER_ID=did:web:192.168.1.102%3A7083:provider
       - EDC_IAM_DID_WEB_USE_HTTPS=false
       - WEB_HTTP_PORT=8080
@@ -190,6 +191,7 @@ services:
     restart: always
     environment:
       - EDC_PARTICIPANT_ID=did:web:192.168.1.102%3A7083:provider
+      - EDC_API_AUTH_KEY=password
       - EDC_IAM_ISSUER_ID=did:web:192.168.1.102%3A7083:provider
       - EDC_IAM_DID_WEB_USE_HTTPS=false
       - WEB_HTTP_PORT=8080
@@ -298,6 +300,7 @@ services:
     restart: always
     environment:
       - EDC_PARTICIPANT_ID=did:web:192.168.1.102%3A7083:provider
+      - EDC_API_AUTH_KEY=password
       - EDC_IAM_ISSUER_ID=did:web:192.168.1.102%3A7083:provider
       - EDC_IAM_DID_WEB_USE_HTTPS=false
       - WEB_HTTP_PORT=8080

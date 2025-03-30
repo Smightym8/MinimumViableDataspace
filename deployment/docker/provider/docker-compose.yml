@@ -206,7 +206,7 @@ services:
       - WEB_HTTP_CATALOG_PATH=/api/catalog
       - WEB_HTTP_CATALOG_AUTH_TYPE=tokenbased
       - WEB_HTTP_CATALOG_AUTH_KEY=password
-      - EDC_DSP_CALLBACK_ADDRESS=http://provider-qna-connector-controlplane:8082/api/dsp
+      - EDC_DSP_CALLBACK_ADDRESS=http://192.168.1.102:4082/api/dsp
       - EDC_IAM_STS_PRIVATEKEY_ALIAS=did:web:192.168.1.102%3A7083:provider#key-1
       - EDC_IAM_STS_PUBLICKEY_ID=did:web:192.168.1.102%3A7083:provider#key-1
       - JAVA_TOOL_OPTIONS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=1044
@@ -315,7 +315,7 @@ services:
       - WEB_HTTP_CATALOG_PATH=/api/catalog
       - WEB_HTTP_CATALOG_AUTH_TYPE=tokenbased
       - WEB_HTTP_CATALOG_AUTH_KEY=password
-      - EDC_DSP_CALLBACK_ADDRESS=http://provider-manufacturing-connector-controlplane:8082/api/dsp
+      - EDC_DSP_CALLBACK_ADDRESS=http://192.168.1.102:5082/api/dsp
       - EDC_IAM_STS_PRIVATEKEY_ALIAS=did:web:192.168.1.102%3A7083:provider#key-1
       - EDC_IAM_STS_PUBLICKEY_ID=did:web:192.168.1.102%3A7083:provider#key-1
       - JAVA_TOOL_OPTIONS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=1044

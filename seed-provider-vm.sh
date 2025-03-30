@@ -13,8 +13,8 @@ done
 newman run \
   --folder "Seed Catalog Server" \
   --env-var "HOST=http://127.0.0.1:9081" \
-  --env-var "PROVIDER_QNA_DSP_URL=http://localhost:4082" \
-  --env-var "PROVIDER_MF_DSP_URL=http://localhost:5082" \
+  --env-var "PROVIDER_QNA_DSP_URL=http://192.168.1.102:4082" \
+  --env-var "PROVIDER_MF_DSP_URL=http://192.168.1.102:5082" \
   ./deployment/postman/MVD.postman_collection.json
 
 ## Seed management DATA to identityhubs

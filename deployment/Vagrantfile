@@ -11,7 +11,21 @@ Vagrant.configure("2") do |config|
     consumer.vm.box_version = vm_box_version
     consumer.vm.hostname = "mvd-consumer-vm"
     consumer.vm.network "private_network", ip: "192.168.1.101"
+
+    # Ports
+    # PostgreSQL Port
     consumer.vm.network "forwarded_port", guest: 5432, host: 5432, auto_correct: true
+    # Vault Port
+    consumer.vm.network "forwarded_port", guest: 8200, host: 8200, auto_correct: true
+    # Controlplane Management Port
+    consumer.vm.network "forwarded_port", guest: 8081, host: 8081, auto_correct: true
+    # IdentityHub Presentation Port
+    consumer.vm.network "forwarded_port", guest: 7082, host: 7082, auto_correct: true
+    # IdentityHub DID Port
+    consumer.vm.network "forwarded_port", guest: 7083, host: 7083, auto_correct: true
+    # Connector Catalog Port
+    consumer.vm.network "forwarded_port", guest: 8084, host: 8084, auto_correct: true
+
     consumer.vm.synced_folder "../", "/tmp/MinimumViableDataspace"
     consumer.vm.provider "virtualbox" do |vb|
       vb.name = "MVD-Consumer-VM"
@@ -30,7 +44,19 @@ Vagrant.configure("2") do |config|
     provider.vm.box_version = vm_box_version
     provider.vm.hostname = "mvd-provider-vm"
     provider.vm.network "private_network", ip: "192.168.1.102"
+
+    # Ports
+    # PostgreSQL Port
     provider.vm.network "forwarded_port", guest: 5432, host: 5433, auto_correct: true
+    # Vault Port
+    provider.vm.network "forwarded_port", guest: 8200, host: 8300, auto_correct: true
+    # Catalog Protocol Port
+    provider.vm.network "forwarded_port", guest: 9082, host: 9082, auto_correct: true
+    # QNA Connector Protocol Port
+    provider.vm.network "forwarded_port", guest: 4082, host: 4082, auto_correct: true
+    # DataPlane Public Port
+    provider.vm.network "forwarded_port", guest: 11002, host: 11002, auto_correct: true
+
     provider.vm.synced_folder "../", "/tmp/MinimumViableDataspace"
     provider.vm.provider "virtualbox" do |vb|
       vb.name = "MVD-Provider-VM"
@@ -67,4 +93,4 @@ Vagrant.configure("2") do |config|
         ansible-playbook -i inventory main.yml
     SHELL
   end
-end  
+end

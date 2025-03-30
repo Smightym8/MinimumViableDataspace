@@ -46,12 +46,14 @@
 
 - name: Seed Consumer
   shell:
-    cmd: ./seed-consumer-vm.sh > seed-output.txt
+    cmd: ./seed-consumer-vm.sh
     chdir: /home/vagrant/MinimumViableDataspace
+  become_user: vagrant
   when: "'consumer' in group_names"
 
 - name: Seed Provider
   shell:
-    cmd: ./seed-provider-vm.sh > seed-output.txt
+    cmd: ./seed-provider-vm.sh
     chdir: /home/vagrant/MinimumViableDataspace
+  become_user: vagrant
   when: "'provider' in group_names"

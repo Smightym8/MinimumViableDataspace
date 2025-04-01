@@ -71,5 +71,20 @@ subprojects {
             // make sure  always runs after "dockerize" and after "copyOtel"
             dockerTask.dependsOn(tasks.named(ShadowJavaPlugin.SHADOW_JAR_TASK_NAME))
         }
+
+        if (configurations.findByName("implementation")?.dependencies?.any { it.name == "opentelemetry-exporter-otlp" } == true) {
+            tasks.register("copyOpenTelemetryJar", Copy::class) {
+                val openTelemetry = configurations.create("open-telemetry")
+
+                dependencies {
+                    openTelemetry(libs.opentelemetry.javaagent)
+                    openTelemetry(libs.opentelemetry.exporter.otlp)
+                }
+
+                from(openTelemetry)
+                into("build/libs")
+                rename { it -> it.substring(0, it.indexOfLast { it == '-' }) + ".jar"}
+            }
+        }
     }
 }

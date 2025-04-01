@@ -23,6 +23,7 @@ dependencies {
     runtimeOnly(project(":extensions:dcp-impl")) // some patches/impls for DCP
     runtimeOnly(project(":extensions:catalog-node-resolver")) // to trigger the federated catalog
     runtimeOnly(libs.edc.bom.controlplane)
+    implementation(libs.opentelemetry.exporter.otlp)
 
     if (project.properties.getOrDefault("persistence", "false") == "true") {
         runtimeOnly(libs.edc.vault.hashicorp)

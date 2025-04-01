@@ -31,6 +31,7 @@ dependencies {
     runtimeOnly(libs.edc.dsp) // protocol webhook
     runtimeOnly(libs.bundles.dcp) // DCP protocol impl
     runtimeOnly(libs.edc.api.dsp.config) // json-ld expansion
+    implementation(libs.opentelemetry.exporter.otlp)
 
     if (project.properties.getOrDefault("persistence", "false") == "true") {
         runtimeOnly(libs.edc.vault.hashicorp)

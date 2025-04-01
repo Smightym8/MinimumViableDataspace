@@ -26,6 +26,7 @@ dependencies {
     runtimeOnly(libs.edc.api.version)
     runtimeOnly(libs.bundles.sql.sts)
     runtimeOnly(libs.edc.vault.hashicorp)
+    implementation(libs.opentelemetry.exporter.otlp)
 }
 
 tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {

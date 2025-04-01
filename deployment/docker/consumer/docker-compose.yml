@@ -39,6 +39,23 @@ services:
       start_period: 5s
       timeout: 30s
 
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: jaeger
+    restart: always
+    ports:
+      - "4317:4317"
+      - "16686:16686"
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+      - LOG_LEVEL=debug
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:16686"]
+      interval: 10s
+      retries: 5
+      start_period: 5s
+      timeout: 30s
+
   sts:
     image: sts:latest
     container_name: consumer-sts
@@ -57,6 +74,10 @@ services:
       - EDC_SQL_SCHEMA_AUTOCREATE=true
       - EDC_VAULT_HASHICORP_URL=http://consumer-vault:8200
       - EDC_VAULT_HASHICORP_TOKEN=root
+      - OTEL_SERVICE_NAME=consumer-sts
+      - OTEL_LOGS_EXPORTER=none
+      - OTEL_JAVAAGENT_EXTENSIONS=/app/opentelemetry-exporter-otlp.jar
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4318
     ports:
       - "6080:8080" # Web port
       - "6081:8081" # Accounts port
@@ -73,6 +94,8 @@ services:
       vault:
         condition: service_healthy
       postgres:
+        condition: service_healthy
+      jaeger:
         condition: service_healthy
 
   identity-hub:
@@ -107,7 +130,11 @@ services:
       - EDC_SQL_SCHEMA_AUTOCREATE=true
       - EDC_STS_ACCOUNT_API_URL=http://consumer-sts:8081/api
       - EDC_STS_ACCOUNTS_API_AUTH_HEADER_VALUE=password
-      - EDC_IAM_ACCESSTOKEN_JTI_VALIDATION=true
+      - EDC_IAM_ACCESSTOKEN_JTI_VALIDATION=
+      - OTEL_SERVICE_NAME=consumer-identity-hub
+      - OTEL_LOGS_EXPORTER=none
+      - OTEL_JAVAAGENT_EXTENSIONS=/app/opentelemetry-exporter-otlp.jar
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4318
     ports:
       - "7080:7080" # Web port
       - "7081:7081" # Identity port
@@ -129,6 +156,8 @@ services:
       postgres:
         condition: service_healthy
       sts:
+        condition: service_healthy
+      jaeger:
         condition: service_healthy
 
   connector-controlplane:
@@ -195,6 +224,8 @@ services:
         condition: service_healthy
       sts:
         condition: service_healthy
+      jaeger:
+        condition: service_healthy
 
   connector-dataplane:
     image: dataplane:latest
@@ -223,6 +254,10 @@ services:
       - EDC_IAM_STS_OAUTH_TOKEN_URL=http://consumer-sts:8082/api/sts/token
       - EDC_IAM_STS_OAUTH_CLIENT_ID=did:web:192.168.1.101%3A7083:consumer
       - EDC_IAM_STS_OAUTH_CLIENT_SECRET_ALIAS=did:web:192.168.1.101%3A7083:consumer-sts-client-secret
+      - OTEL_SERVICE_NAME=consumer-connector-dataplane
+      - OTEL_LOGS_EXPORTER=none
+      - OTEL_JAVAAGENT_EXTENSIONS=/app/opentelemetry-exporter-otlp.jar
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4318
     ports:
       - "9080:8080" # Web Port
       - "9083:8083" # Control Port
@@ -237,17 +272,8 @@ services:
         condition: service_healthy
       sts:
         condition: service_healthy
-
-  jaeger:
-    image: jaegertracing/all-in-one:latest
-    container_name: jaeger
-    restart: always
-    ports:
-      - "4317:4317"
-      - "16686:16686"
-    environment:
-      - COLLECTOR_OTLP_ENABLED=true
-      - LOG_LEVEL=debug
+      jaeger:
+        condition: service_healthy
 
   # Issuer
   # TODO: Move to a separate vm

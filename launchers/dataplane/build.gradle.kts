@@ -20,6 +20,7 @@ plugins {
 
 dependencies {
     runtimeOnly(libs.edc.bom.dataplane)
+    implementation(libs.opentelemetry.exporter.otlp)
 
     if (project.properties.getOrDefault("persistence", "false") == "true") {
         runtimeOnly(libs.edc.vault.hashicorp)

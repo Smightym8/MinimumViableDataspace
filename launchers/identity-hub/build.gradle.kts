@@ -23,6 +23,7 @@ dependencies {
     runtimeOnly(project(":extensions:did-example-resolver"))
 
     implementation(libs.edc.ih.lib.credentialquery) // needed in the extensions here
+    implementation(libs.opentelemetry.exporter.otlp)
 
 
     if (project.properties.getOrDefault("persistence", "false") == "true") {

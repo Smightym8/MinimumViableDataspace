@@ -3,6 +3,11 @@
     cmd: ./gradlew build
     chdir: /home/vagrant/MinimumViableDataspace
 
+- name: Execute Gradle copyOpenTelemetryJar
+  shell:
+    cmd: ./gradlew copyOpenTelemetryJar
+    chdir: /home/vagrant/MinimumViableDataspace
+
 - name: Execute Gradle Dockerize with Persistence
   shell:
     cmd: ./gradlew -Ppersistence=true dockerize

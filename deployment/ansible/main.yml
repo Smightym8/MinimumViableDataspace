@@ -1,6 +1,18 @@
 - hosts: all
   become: true
+
+  pre_tasks:
+    - name: update repository index
+      apt:
+        update_cache: yes
+
+- hosts: consumer, provider
+  become: true
   roles:
     - base
+
+- hosts: all
+  become: true
+  roles:
     - docker
     - mvd

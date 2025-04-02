@@ -1,23 +1,26 @@
-- name: Execute Gradle Build
+- name: Start Issuer
   shell:
-    cmd: ./gradlew build
-    chdir: /home/vagrant/MinimumViableDataspace
+    cmd: docker compose up -d
+    chdir: /home/vagrant/MinimumViableDataspace/deployment/docker/issuer
+  when: "'issuer' in group_names"
 
-- name: Execute Gradle copyOpenTelemetryJar
-  shell:
-    cmd: ./gradlew copyOpenTelemetryJar
-    chdir: /home/vagrant/MinimumViableDataspace
+#- name: Execute Gradle Build
+#  shell:
+#    cmd: ./gradlew build
+#    chdir: /home/vagrant/MinimumViableDataspace
+#  when: "'consumer' in group_names or 'provider' in group_names"
+
+#- name: Execute Gradle copyOpenTelemetryJar
+#  shell:
+#    cmd: ./gradlew copyOpenTelemetryJar
+#    chdir: /home/vagrant/MinimumViableDataspace
+#  when: "'consumer' in group_names or 'provider' in group_names"
 
 - name: Execute Gradle Dockerize with Persistence
   shell:
     cmd: ./gradlew -Ppersistence=true dockerize
     chdir: /home/vagrant/MinimumViableDataspace
-
-- name: Start MinimumViableDataspace for Consumer
-  shell:
-    cmd: docker compose up -d
-    chdir: /home/vagrant/MinimumViableDataspace/deployment/docker/consumer
-  when: "'consumer' in group_names"
+  when: "'consumer' in group_names or 'provider' in group_names"
 
 - name: Ensure seed-consumer-vm.sh is executable
   file:
@@ -31,11 +34,11 @@
     chdir: /home/vagrant/MinimumViableDataspace
   when: "'consumer' in group_names"
 
-- name: Start MinimumViableDataspace for Provider
+- name: Start MinimumViableDataspace for Consumer
   shell:
     cmd: docker compose up -d
-    chdir: /home/vagrant/MinimumViableDataspace/deployment/docker/provider
-  when: "'provider' in group_names"
+    chdir: /home/vagrant/MinimumViableDataspace/deployment/docker/consumer
+  when: "'consumer' in group_names"
 
 - name: Ensure seed-provider-vm.sh is executable
   file:
@@ -48,6 +51,14 @@
     cmd: dos2unix seed-provider-vm.sh
     chdir: /home/vagrant/MinimumViableDataspace
   when: "'provider' in group_names"
+
+- name: Start MinimumViableDataspace for Provider
+  shell:
+    cmd: docker compose up -d
+    chdir: /home/vagrant/MinimumViableDataspace/deployment/docker/provider
+  when: "'provider' in group_names"
+
+
 
 - name: Seed Consumer
   shell:

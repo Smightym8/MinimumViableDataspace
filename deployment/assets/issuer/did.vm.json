@@ -2,9 +2,9 @@
   "service": [],
   "verificationMethod": [
     {
-      "id": "did:web:192.168.1.101#key-1",
+      "id": "did:web:192.168.1.253#key-1",
       "type": "JsonWebKey2020",
-      "controller": "did:web:192.168.1.101",
+      "controller": "did:web:192.168.1.253",
       "publicKeyMultibase": null,
       "publicKeyJwk": {
         "kty": "OKP",
@@ -14,11 +14,11 @@
     }
   ],
   "authentication": ["key-1"],
-  "id": "did:web:192.168.1.101",
+  "id": "did:web:192.168.1.253",
   "@context": [
     "https://www.w3.org/ns/did/v1",
     {
-      "@base": "did:web:192.168.1.101"
+      "@base": "did:web:192.168.1.253"
     }
   ]
 }

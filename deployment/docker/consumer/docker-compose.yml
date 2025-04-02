@@ -15,7 +15,7 @@ services:
       interval: 10s
       retries: 5
       start_period: 5s
-      timeout: 30s
+      timeout: 60s
 
   vault:
     image: hashicorp/vault:latest
@@ -37,14 +37,13 @@ services:
       interval: 10s
       retries: 5
       start_period: 5s
-      timeout: 30s
+      timeout: 60s
 
   jaeger:
     image: jaegertracing/all-in-one:latest
     container_name: jaeger
     restart: always
     ports:
-      - "4317:4317"
       - "16686:16686"
     environment:
       - COLLECTOR_OTLP_ENABLED=true
@@ -54,7 +53,7 @@ services:
       interval: 10s
       retries: 5
       start_period: 5s
-      timeout: 30s
+      timeout: 60s
 
   sts:
     image: sts:latest
@@ -87,7 +86,7 @@ services:
       test:
         ["CMD", "curl", "-f", "http://localhost:8080/internal/check/readiness"]
       interval: 5s
-      timeout: 30s
+      timeout: 60s
       retries: 10
       start_period: 5s
     depends_on:
@@ -130,7 +129,7 @@ services:
       - EDC_SQL_SCHEMA_AUTOCREATE=true
       - EDC_STS_ACCOUNT_API_URL=http://consumer-sts:8081/api
       - EDC_STS_ACCOUNTS_API_AUTH_HEADER_VALUE=password
-      - EDC_IAM_ACCESSTOKEN_JTI_VALIDATION=
+      - EDC_IAM_ACCESSTOKEN_JTI_VALIDATION=true
       - OTEL_SERVICE_NAME=consumer-identity-hub
       - OTEL_LOGS_EXPORTER=none
       - OTEL_JAVAAGENT_EXTENSIONS=/app/opentelemetry-exporter-otlp.jar
@@ -145,7 +144,7 @@ services:
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:7080/api/check/readiness"]
       interval: 5s
-      timeout: 30s
+      timeout: 60s
       retries: 10
       start_period: 5s
     volumes:
@@ -167,7 +166,7 @@ services:
     environment:
       - EDC_PARTICIPANT_ID=did:web:192.168.1.101%3A7083:consumer
       - EDC_API_AUTH_KEY=password
-      - EDC_IAM_ISSUER_ID=did:web:192.168.1.101%3A7083:consumer #TODO: Change to issues
+      - EDC_IAM_ISSUER_ID=did:web:192.168.1.101%3A7083:consumer
       - EDC_IAM_DID_WEB_USE_HTTPS=false
       - WEB_HTTP_PORT=8080
       - WEB_HTTP_PATH=/api
@@ -212,7 +211,7 @@ services:
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/api/check/readiness"]
       interval: 5s
-      timeout: 30s
+      timeout: 60s
       retries: 10
       start_period: 5s
     volumes:
@@ -274,15 +273,3 @@ services:
         condition: service_healthy
       jaeger:
         condition: service_healthy
-
-  # Issuer
-  # TODO: Move to a separate vm
-  dataspace-issuer-server:
-    image: nginx:latest
-    container_name: dataspace-issuer-server
-    restart: always
-    ports:
-      - "80:80"
-    volumes:
-      - ../../assets/issuer/did.vm.json:/var/www/.well-known/did.json
-      - ../../assets/issuer/nginx.conf:/etc/nginx/nginx.conf

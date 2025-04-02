@@ -2,19 +2,16 @@
   apt:
     name: openjdk-17-jdk
     state: latest
-    update_cache: yes
 
 - name: Install jq
   apt:
     name: jq
     state: latest
-    update_cache: yes
 
 - name: Install dos2unix
   apt:
     name: dos2unix
     state: latest
-    update_cache: yes
 
 - name: Download and install nvm
   shell: curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.2/install.sh | bash

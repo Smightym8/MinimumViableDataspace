@@ -1,8 +1,6 @@
 Vagrant.configure("2") do |config|
   vm_box = "ubuntu/jammy64"
   vm_box_version = "20241002.0.0"
-  vm_memory = 4096
-  vm_cpus = 2
 
   # TODO: Find a way to reduce disk size of the vms
   # Consumer VM
@@ -31,8 +29,8 @@ Vagrant.configure("2") do |config|
     consumer.vm.synced_folder "../", "/tmp/MinimumViableDataspace"
     consumer.vm.provider "virtualbox" do |vb|
       vb.name = "MVD-Consumer-VM"
-      vb.memory = vm_memory
-      vb.cpus = vm_cpus
+      vb.memory = 4096
+      vb.cpus = 2
     end
     consumer.vm.provision "shell", inline: <<-SHELL
         cp -r /tmp/MinimumViableDataspace /home/vagrant/MinimumViableDataspace
@@ -64,10 +62,28 @@ Vagrant.configure("2") do |config|
     provider.vm.synced_folder "../", "/tmp/MinimumViableDataspace"
     provider.vm.provider "virtualbox" do |vb|
       vb.name = "MVD-Provider-VM"
-      vb.memory = vm_memory
-      vb.cpus = vm_cpus
+      vb.memory = 4096
+      vb.cpus = 2
     end
     provider.vm.provision "shell", inline: <<-SHELL
+        cp -r /tmp/MinimumViableDataspace /home/vagrant/MinimumViableDataspace
+        chown -R vagrant:vagrant /home/vagrant/MinimumViableDataspace
+    SHELL
+  end
+
+  # Issuer VM
+  config.vm.define "mvd-issuer-vm" do |issuer|
+    issuer.vm.box = vm_box
+    issuer.vm.box_version = vm_box_version
+    issuer.vm.hostname = "mvd-issuer-vm"
+    issuer.vm.network "private_network", ip: "192.168.1.253"
+    issuer.vm.synced_folder "../", "/tmp/MinimumViableDataspace"
+    issuer.vm.provider "virtualbox" do |vb|
+      vb.name = "MVD-Issuer-VM"
+      vb.memory = 2048
+      vb.cpus = 1
+    end
+    issuer.vm.provision "shell", inline: <<-SHELL
         cp -r /tmp/MinimumViableDataspace /home/vagrant/MinimumViableDataspace
         chown -R vagrant:vagrant /home/vagrant/MinimumViableDataspace
     SHELL
@@ -78,13 +94,13 @@ Vagrant.configure("2") do |config|
     ansible.vm.box = vm_box
     ansible.vm.box_version = vm_box_version
     ansible.vm.hostname = "mvd-ansible-control-vm"
-    ansible.vm.network "private_network", ip: "192.168.1.100"
+    ansible.vm.network "private_network", ip: "192.168.1.254"
     ansible.vm.synced_folder "./ansible", "/home/vagrant/ansible"
     ansible.vm.synced_folder "./.vagrant", "/home/vagrant/.vagrant"
     ansible.vm.provider "virtualbox" do |vb|
         vb.name = "MVD-Ansible-Control-VM"
-        vb.memory = vm_memory
-        vb.cpus = vm_cpus
+        vb.memory = 2048
+        vb.cpus = 1
     end
     ansible.vm.provision "shell", inline: <<-SHELL
         sudo apt update -y

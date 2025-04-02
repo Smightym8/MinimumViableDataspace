@@ -52,6 +52,11 @@
       * [10.2.1 `did:web` for participants](#1021-didweb-for-participants)
       * [10.2.2 `did:web` for the dataspace issuer](#1022-didweb-for-the-dataspace-issuer)
     * [10.3 No issuance (yet)](#103-no-issuance-yet)
+  * [11. Running the Demo (VMs)](#11-running-the-demo-vms)
+    * [11.1 Prerequisites](#111-prerequisites)
+    * [11.2 Deploying the MVD](#112-deploying-the-mvd)
+    * [11.3 Seeding the dataspace](#113-seeding-the-dataspace)
+    * [11.4 Debugging MVD in VMs](#114-debugging-mvd-in-vms)
 <!-- TOC -->
 
 ## 1. Introduction
@@ -860,3 +865,47 @@ query for `DataProcessorCredentials` in the database.
 
 The MVD uses the default `EdcScopeToCriterionTransformer` to achieve this. It is recommended to implement a custom
 `ScopeToCriterionTransformer` for an actual production scenario.
+
+
+## 11. Running the Demo (VMs)
+### 11.1 Prerequisites
+> [!IMPORTANT]  
+> It is required to have `160GB` of free disk space as each VM allocates `40GB`. In the end only `120GB` are used because the Ansible VM will be destroyed by the deployment script.
+
+> [!TIP]  
+> It is recommended to have at least `32GB` of RAM and a CPU with at least `4 Cores`.
+
+To run the demo you need to install the following software:
+- [Vagrant](https://developer.hashicorp.com/vagrant/install?product_intent=vagrant)
+- [VirtualBox](https://www.virtualbox.org/wiki/Downloads)
+
+### 11.2 Deploying the MVD
+There are two scripts to build the runtime images and to start the vms:
+- `deploy-mvd-with-vagrant.ps1`
+- `deploy-mvd-with-vagrant.sh`
+
+After the script is executed there will be three vms hosting the dataspace:
+- MVD-Issuer-VM
+- MVD-Consumer-VM
+- MVD-Provider-VM
+
+### 11.2 Seeding the dataspace
+Although the VMs are configured with ansible the seed script for the provider vm has to be executed manually. Somehow the newman command in the `seed-provider-vm.sh` is not executed.
+
+To seed the provider vm navigate to the deployment folder and run `vagrant ssh mvd-providervm`. Once you are inside the vm navigate to `MinimumViableDataspace`. Then you can execute the seed script with `./seed-provider-vm`.
+
+Now the data space is ready and you can the execute the REST requests as explained in [7. Executing REST requests using Postman](#7-executing-rest-requests-using-postman).
+
+### 11.3 Debugging MVD in VMs
+To debug the MVD Vagrant exposes the following ports:
+- Consumer Postgres: `5432` 
+- Consumer Vault Web UI: `8200`
+- Consumer Jaeger Web UI: `16686`
+- Provider Postgres: `5433`
+- Provider Vault Web UI: `8300`
+- Provider Jaeger Web UI: `16687`
+
+The postgres databases can be accessed with any database client. Vault and Jaeger have a web ui which can be accessed with the browser.
+
+To access the logs of the docker container you have to navigate to the deployment folder and execute `vagrant ssh [vm name]` e.g. `vagrant ssh mvd-consumer-vm`.
+On the vm you can use the docker commands to view the running containers and to access the logs.

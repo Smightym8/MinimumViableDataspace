@@ -23,8 +23,6 @@ Vagrant.configure("2") do |config|
     consumer.vm.network "forwarded_port", guest: 7083, host: 7083, auto_correct: true
     # Connector Catalog Port
     consumer.vm.network "forwarded_port", guest: 8084, host: 8084, auto_correct: true
-    # Jaeger Web UI Port
-    consumer.vm.network "forwarded_port", guest: 16686, host: 16686, auto_correct: true
 
     consumer.vm.synced_folder "../", "/tmp/MinimumViableDataspace"
     consumer.vm.provider "virtualbox" do |vb|
@@ -56,8 +54,6 @@ Vagrant.configure("2") do |config|
     provider.vm.network "forwarded_port", guest: 4082, host: 4082, auto_correct: true
     # DataPlane Public Port
     provider.vm.network "forwarded_port", guest: 11002, host: 11002, auto_correct: true
-    # Jaeger Web UI Port
-    provider.vm.network "forwarded_port", guest: 16686, host: 16687, auto_correct: true
 
     provider.vm.synced_folder "../", "/tmp/MinimumViableDataspace"
     provider.vm.provider "virtualbox" do |vb|
@@ -77,6 +73,8 @@ Vagrant.configure("2") do |config|
     issuer.vm.box_version = vm_box_version
     issuer.vm.hostname = "mvd-issuer-vm"
     issuer.vm.network "private_network", ip: "192.168.1.253"
+    # Jaeger Web UI Port
+    issuer.vm.network "forwarded_port", guest: 16686, host: 16686, auto_correct: true
     issuer.vm.synced_folder "../", "/tmp/MinimumViableDataspace"
     issuer.vm.provider "virtualbox" do |vb|
       vb.name = "MVD-Issuer-VM"

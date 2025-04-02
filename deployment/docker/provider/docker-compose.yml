@@ -39,22 +39,6 @@ services:
       start_period: 5s
       timeout: 60s
 
-  jaeger:
-    image: jaegertracing/all-in-one:latest
-    container_name: jaeger
-    restart: always
-    ports:
-      - "16686:16686"
-    environment:
-      - COLLECTOR_OTLP_ENABLED=true
-      - LOG_LEVEL=debug
-    healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:16686"]
-      interval: 10s
-      retries: 5
-      start_period: 5s
-      timeout: 60s
-
   sts:
     image: sts:latest
     container_name: provider-sts
@@ -76,7 +60,7 @@ services:
       - OTEL_SERVICE_NAME=provider-sts
       - OTEL_LOGS_EXPORTER=none
       - OTEL_JAVAAGENT_EXTENSIONS=/app/opentelemetry-exporter-otlp.jar
-      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4318
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://192.168.1.253:4318
     ports:
       - "8080:8080" # Web port
       - "8081:8081" # Accounts port
@@ -93,8 +77,6 @@ services:
       vault:
         condition: service_healthy
       postgres:
-        condition: service_healthy
-      jaeger:
         condition: service_healthy
 
   identity-hub:
@@ -133,7 +115,7 @@ services:
       - OTEL_SERVICE_NAME=provider-identity-hub
       - OTEL_LOGS_EXPORTER=none
       - OTEL_JAVAAGENT_EXTENSIONS=/app/opentelemetry-exporter-otlp.jar
-      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4318
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://192.168.1.253:4318
     ports:
       - "7080:7080" # Web port
       - "7081:7081" # Identity port
@@ -155,8 +137,6 @@ services:
       postgres:
         condition: service_healthy
       sts:
-        condition: service_healthy
-      jaeger:
         condition: service_healthy
 
   catalog-server:
@@ -194,7 +174,7 @@ services:
       - OTEL_SERVICE_NAME=provider-catalog-server
       - OTEL_LOGS_EXPORTER=none
       - OTEL_JAVAAGENT_EXTENSIONS=/app/opentelemetry-exporter-otlp.jar
-      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4318
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://192.168.1.253:4318
     ports:
       - "9080:8080" # Web port
       - "9081:8081" # Management port
@@ -215,8 +195,6 @@ services:
       postgres:
         condition: service_healthy
       sts:
-        condition: service_healthy
-      jaeger:
         condition: service_healthy
 
   qna-connector-controlplane:
@@ -260,7 +238,7 @@ services:
       - OTEL_SERVICE_NAME=provider-qna-connector-controlplane
       - OTEL_LOGS_EXPORTER=none
       - OTEL_JAVAAGENT_EXTENSIONS=/app/opentelemetry-exporter-otlp.jar
-      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4318
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://192.168.1.253:4318
     ports:
       - "4080:8080" # Web Port
       - "4081:8081" # Management Port
@@ -282,8 +260,6 @@ services:
       postgres:
         condition: service_healthy
       sts:
-        condition: service_healthy
-      jaeger:
         condition: service_healthy
 
   qna-connector-dataplane:
@@ -316,7 +292,7 @@ services:
       - OTEL_SERVICE_NAME=provider-qna-connector-dataplane
       - OTEL_LOGS_EXPORTER=none
       - OTEL_JAVAAGENT_EXTENSIONS=/app/opentelemetry-exporter-otlp.jar
-      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4318
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://192.168.1.253:4318
     ports:
       - "3080:8080" # Web Port
       - "3083:8083" # Control Port
@@ -336,8 +312,6 @@ services:
       qna-connector-controlplane:
         condition: service_healthy
       sts:
-        condition: service_healthy
-      jaeger:
         condition: service_healthy
 
   manufacturing-connector-controlplane:
@@ -381,7 +355,7 @@ services:
       - OTEL_SERVICE_NAME=provider-manufacturing-connector-controlplane
       - OTEL_LOGS_EXPORTER=none
       - OTEL_JAVAAGENT_EXTENSIONS=/app/opentelemetry-exporter-otlp.jar
-      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4318
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://192.168.1.253:4318
     ports:
       - "5080:8080" # Web Port
       - "5081:8081" # Management Port
@@ -403,8 +377,6 @@ services:
       postgres:
         condition: service_healthy
       sts:
-        condition: service_healthy
-      jaeger:
         condition: service_healthy
 
   manufacturing-connector-dataplane:
@@ -437,7 +409,7 @@ services:
       - OTEL_SERVICE_NAME=provider-manufacturing-connector-dataplane
       - OTEL_LOGS_EXPORTER=none
       - OTEL_JAVAAGENT_EXTENSIONS=/app/opentelemetry-exporter-otlp.jar
-      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4318
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://192.168.1.253:4318
     ports:
       - "6080:8080" # Web Port
       - "6083:8083" # Control Port
@@ -457,6 +429,4 @@ services:
       manufacturing-connector-controlplane:
         condition: service_healthy
       sts:
-        condition: service_healthy
-      jaeger:
         condition: service_healthy

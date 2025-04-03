@@ -61,6 +61,7 @@ services:
       - OTEL_LOGS_EXPORTER=none
       - OTEL_JAVAAGENT_EXTENSIONS=/app/opentelemetry-exporter-otlp.jar
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://192.168.1.253:4318
+      - OTEL_METRICS_EXPORTER=none
     ports:
       - "8080:8080" # Web port
       - "8081:8081" # Accounts port
@@ -116,6 +117,7 @@ services:
       - OTEL_LOGS_EXPORTER=none
       - OTEL_JAVAAGENT_EXTENSIONS=/app/opentelemetry-exporter-otlp.jar
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://192.168.1.253:4318
+      - OTEL_METRICS_EXPORTER=none
     ports:
       - "7080:7080" # Web port
       - "7081:7081" # Identity port
@@ -175,6 +177,7 @@ services:
       - OTEL_LOGS_EXPORTER=none
       - OTEL_JAVAAGENT_EXTENSIONS=/app/opentelemetry-exporter-otlp.jar
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://192.168.1.253:4318
+      - OTEL_METRICS_EXPORTER=none
     ports:
       - "9080:8080" # Web port
       - "9081:8081" # Management port
@@ -239,6 +242,7 @@ services:
       - OTEL_LOGS_EXPORTER=none
       - OTEL_JAVAAGENT_EXTENSIONS=/app/opentelemetry-exporter-otlp.jar
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://192.168.1.253:4318
+      - OTEL_METRICS_EXPORTER=none
     ports:
       - "4080:8080" # Web Port
       - "4081:8081" # Management Port
@@ -293,6 +297,7 @@ services:
       - OTEL_LOGS_EXPORTER=none
       - OTEL_JAVAAGENT_EXTENSIONS=/app/opentelemetry-exporter-otlp.jar
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://192.168.1.253:4318
+      - OTEL_METRICS_EXPORTER=none
     ports:
       - "3080:8080" # Web Port
       - "3083:8083" # Control Port
@@ -356,6 +361,7 @@ services:
       - OTEL_LOGS_EXPORTER=none
       - OTEL_JAVAAGENT_EXTENSIONS=/app/opentelemetry-exporter-otlp.jar
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://192.168.1.253:4318
+      - OTEL_METRICS_EXPORTER=none
     ports:
       - "5080:8080" # Web Port
       - "5081:8081" # Management Port
@@ -410,6 +416,7 @@ services:
       - OTEL_LOGS_EXPORTER=none
       - OTEL_JAVAAGENT_EXTENSIONS=/app/opentelemetry-exporter-otlp.jar
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://192.168.1.253:4318
+      - OTEL_METRICS_EXPORTER=none
     ports:
       - "6080:8080" # Web Port
       - "6083:8083" # Control Port

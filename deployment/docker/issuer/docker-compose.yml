@@ -19,9 +19,3 @@ services:
     environment:
       - COLLECTOR_OTLP_ENABLED=true
       - LOG_LEVEL=debug
-    healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:16686"]
-      interval: 10s
-      retries: 5
-      start_period: 5s
-      timeout: 60s

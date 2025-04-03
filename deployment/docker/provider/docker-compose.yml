@@ -15,7 +15,7 @@ services:
       interval: 10s
       retries: 5
       start_period: 5s
-      timeout: 60s
+      timeout: 120s
 
   vault:
     image: hashicorp/vault:latest
@@ -37,7 +37,7 @@ services:
       interval: 10s
       retries: 5
       start_period: 5s
-      timeout: 60s
+      timeout: 120s
 
   sts:
     image: sts:latest
@@ -70,7 +70,7 @@ services:
       test:
         ["CMD", "curl", "-f", "http://localhost:8080/internal/check/readiness"]
       interval: 5s
-      timeout: 60s
+      timeout: 120s
       retries: 10
       start_period: 5s
     depends_on:
@@ -126,7 +126,7 @@ services:
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:7080/api/check/readiness"]
       interval: 5s
-      timeout: 60s
+      timeout: 120s
       retries: 10
       start_period: 5s
     volumes:
@@ -184,7 +184,7 @@ services:
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/api/check/readiness"]
       interval: 5s
-      timeout: 60s
+      timeout: 120s
       retries: 10
       start_period: 5s
     volumes:
@@ -249,7 +249,7 @@ services:
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/api/check/readiness"]
       interval: 5s
-      timeout: 60s
+      timeout: 120s
       retries: 10
       start_period: 5s
     volumes:
@@ -301,7 +301,7 @@ services:
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/api/check/readiness"]
       interval: 5s
-      timeout: 60s
+      timeout: 120s
       retries: 10
       start_period: 5s
     depends_on:
@@ -366,7 +366,7 @@ services:
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/api/check/readiness"]
       interval: 5s
-      timeout: 60s
+      timeout: 120s
       retries: 10
       start_period: 5s
     volumes:
@@ -418,7 +418,7 @@ services:
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/api/check/readiness"]
       interval: 5s
-      timeout: 60s
+      timeout: 120s
       retries: 10
       start_period: 5s
     depends_on:

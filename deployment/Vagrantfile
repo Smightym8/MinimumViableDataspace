@@ -1,6 +1,8 @@
 Vagrant.configure("2") do |config|
   vm_box = "ubuntu/jammy64"
   vm_box_version = "20241002.0.0"
+  vm_cpus = 2
+  vm_ram = 4096
 
   # TODO: Find a way to reduce disk size of the vms
   # Consumer VM
@@ -27,8 +29,8 @@ Vagrant.configure("2") do |config|
     consumer.vm.synced_folder "../", "/tmp/MinimumViableDataspace"
     consumer.vm.provider "virtualbox" do |vb|
       vb.name = "MVD-Consumer-VM"
-      vb.memory = 4096
-      vb.cpus = 2
+      vb.memory = vm_ram
+      vb.cpus = vm_cpus
     end
     consumer.vm.provision "shell", inline: <<-SHELL
         cp -r /tmp/MinimumViableDataspace /home/vagrant/MinimumViableDataspace
@@ -58,8 +60,8 @@ Vagrant.configure("2") do |config|
     provider.vm.synced_folder "../", "/tmp/MinimumViableDataspace"
     provider.vm.provider "virtualbox" do |vb|
       vb.name = "MVD-Provider-VM"
-      vb.memory = 4096
-      vb.cpus = 2
+      vb.memory = vm_ram
+      vb.cpus = vm_cpus
     end
     provider.vm.provision "shell", inline: <<-SHELL
         cp -r /tmp/MinimumViableDataspace /home/vagrant/MinimumViableDataspace
@@ -78,8 +80,8 @@ Vagrant.configure("2") do |config|
     issuer.vm.synced_folder "../", "/tmp/MinimumViableDataspace"
     issuer.vm.provider "virtualbox" do |vb|
       vb.name = "MVD-Issuer-VM"
-      vb.memory = 2048
-      vb.cpus = 1
+      vb.memory = vm_ram
+      vb.cpus = vm_cpus
     end
     issuer.vm.provision "shell", inline: <<-SHELL
         cp -r /tmp/MinimumViableDataspace /home/vagrant/MinimumViableDataspace

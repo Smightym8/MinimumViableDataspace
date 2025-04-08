@@ -909,3 +909,7 @@ The postgres databases can be accessed with any database client. Vault and Jaege
 
 To access the logs of the docker container you have to navigate to the deployment folder and execute `vagrant ssh [vm name]` e.g. `vagrant ssh mvd-consumer-vm`.
 On the vm you can use the docker commands to view the running containers and to access the logs.
+
+### 11.4 Overview of the Dataspace
+TODO: Explanation
+![Overview of the Dataspace](mvd.drawio.png "Minimum Viable Dataspace")

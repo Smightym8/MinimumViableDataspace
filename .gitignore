@@ -10,3 +10,4 @@ out/
 .terraform*
 *terraform.tfstate*
 .vagrant
+*.bkp

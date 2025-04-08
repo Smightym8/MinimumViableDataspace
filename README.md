@@ -55,8 +55,9 @@
   * [11. Running the Demo (VMs)](#11-running-the-demo-vms)
     * [11.1 Prerequisites](#111-prerequisites)
     * [11.2 Deploying the MVD](#112-deploying-the-mvd)
-    * [11.3 Seeding the dataspace](#113-seeding-the-dataspace)
-    * [11.4 Debugging MVD in VMs](#114-debugging-mvd-in-vms)
+    * [11.3 Seeding the dataspace](#112-seeding-the-dataspace)
+    * [11.4 Debugging MVD in VMs](#113-debugging-mvd-in-vms)
+    * [11.5 Overview of the Dataspace](#114-overview-of-the-dataspace)
 <!-- TOC -->
 
 ## 1. Introduction
@@ -889,14 +890,14 @@ After the script is executed there will be three vms hosting the dataspace:
 - MVD-Consumer-VM
 - MVD-Provider-VM
 
-### 11.2 Seeding the dataspace
+### 11.3 Seeding the dataspace
 Although the VMs are configured with ansible the seed script for the provider vm has to be executed manually. Somehow the newman command in the `seed-provider-vm.sh` is not executed.
 
 To seed the provider vm navigate to the deployment folder and run `vagrant ssh mvd-providervm`. Once you are inside the vm navigate to `MinimumViableDataspace`. Then you can execute the seed script with `./seed-provider-vm`.
 
 Now the data space is ready and you can the execute the REST requests as explained in [7. Executing REST requests using Postman](#7-executing-rest-requests-using-postman).
 
-### 11.3 Debugging MVD in VMs
+### 11.4 Debugging MVD in VMs
 To debug the MVD Vagrant exposes the following ports:
 - Consumer Postgres: `5432` 
 - Consumer Vault Web UI: `8200`
@@ -910,6 +911,6 @@ The postgres databases can be accessed with any database client. Vault and Jaege
 To access the logs of the docker container you have to navigate to the deployment folder and execute `vagrant ssh [vm name]` e.g. `vagrant ssh mvd-consumer-vm`.
 On the vm you can use the docker commands to view the running containers and to access the logs.
 
-### 11.4 Overview of the Dataspace
+### 11.5 Overview of the Dataspace
 TODO: Explanation
 ![Overview of the Dataspace](mvd.drawio.png "Minimum Viable Dataspace")

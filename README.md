@@ -55,9 +55,9 @@
   * [11. Running the Demo (VMs)](#11-running-the-demo-vms)
     * [11.1 Prerequisites](#111-prerequisites)
     * [11.2 Deploying the MVD](#112-deploying-the-mvd)
-    * [11.3 Seeding the dataspace](#112-seeding-the-dataspace)
-    * [11.4 Debugging MVD in VMs](#113-debugging-mvd-in-vms)
-    * [11.5 Overview of the Dataspace](#114-overview-of-the-dataspace)
+    * [11.3 Seeding the dataspace](#113-seeding-the-dataspace)
+    * [11.4 Debugging MVD in VMs](#114-debugging-mvd-in-vms)
+    * [11.5 Overview of the Dataspace](#115-overview-of-the-dataspace)
 <!-- TOC -->
 
 ## 1. Introduction

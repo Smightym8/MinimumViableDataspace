@@ -912,5 +912,43 @@ To access the logs of the docker container you have to navigate to the deploymen
 On the vm you can use the docker commands to view the running containers and to access the logs.
 
 ### 11.5 Overview of the Dataspace
-TODO: Explanation
+#### 11.5.1 General description
+The following diagram shows an overview of the Minimum Viable Dataspace deployed on virtual machines. It includes the components that are deployed on each machine aswell as the postman client that is used to execute the postman requests that can be found in this repository (see [Executing REST requests using Postman](#7-executing-rest-requests-using-postman)). The dataspace is deployed on three virtual machines: Issuer VM, Consumer VM and Provider VM. The Issuer VM hosts the dataspace issuer which is just an nginx webserver serving the did of the issuer. We also deployed jaeger on the issuer vm to collect the traces of all the components. The diagram was created based on the system architecture that jaeger creates with the collected traces.
+
+On the other two machines the edc components are deployed as docker containers. The consumer and provider both have an secure token service, identity hub, controlplane and dataplane. The provider aditionally has a catalog server and two control- and dataplanes.
+
+As you can see there are a lot of interactions going in the dataspace. In the following the interactions will be explained in general and based on the executed postman requests as they trigger these interactions between the components. Some of the interactions are already started after deploying and seeding the dataspace for example the dataplane registers itself on the controlplane. It's also important to know that the postman requests are from the point of view of a consumer. So all of the requests are made to the consumer controlplane except for the request to retrieve data. This requests is directly executed agains the provider dataplane which exposes a port to access the data after the contract negotiation.
+
+#### 11.5.2 Interactions after the deployment
+After the deployment of the dataspace is finished the controlplane tries to resolve the dids of the participants defined in the `deployment/assets/participants/participants.vm.json`. This results in a call to the identity hub of the participant e.g. the consumer controlplane calls the provider identity hub.
+
+The controlplanes also regularly execute a catalog request which means that for example the consumer controlplane calls the provider catalog server but also the other two provider controlplanes. This can be observed in the logs of the controlplanes and the catalog server:
+`DSP: Incoming CatalogRequestMessage for class org.eclipse.edc.connector.controlplane.catalog.spi.Catalog process`
+
+ The catalog server itself is also a controlplane but with less dependencies included as its purpose is to only provide linked assets that contain a reference to the actual asset. The actual asset information are provided by the controlplane.
+
+#### 11.5.3 Executing the `Get the catalog` request
+TODO
+
+#### 11.5.4 Executing the `Initiate the contract negotiation` request
+TODO
+
+#### 11.5.5 Executing the `Query negotiation status` request
+TODO
+
+#### 11.5.6 Executing the `Initiate data transfer` request
+TODO
+
+#### 11.5.7 Executing the `Query data transfers` request
+TODO
+
+#### 11.5.8 Executing the `Get EndpointDataReference` request
+TODO
+
+#### 11.5.9 Executing the `Get access token for EDR` request
+TODO
+
+#### 11.5.10 Executing the `Fetch data` request
+TODO
+
 ![Overview of the Dataspace](mvd.drawio.png "Minimum Viable Dataspace")

@@ -870,10 +870,10 @@ The MVD uses the default `EdcScopeToCriterionTransformer` to achieve this. It is
 
 ## 11. Running the Demo (VMs)
 ### 11.1 Prerequisites
-> [!IMPORTANT]  
+> [!IMPORTANT]
 > It is required to have `160GB` of free disk space as each VM allocates `40GB`. In the end only `120GB` are used because the Ansible VM will be destroyed by the deployment script.
 
-> [!TIP]  
+> [!TIP]
 > It is recommended to have at least `32GB` of RAM and a CPU with at least `4 Cores`.
 
 To run the demo you need to install the following software:
@@ -899,7 +899,7 @@ Now the data space is ready and you can the execute the REST requests as explain
 
 ### 11.4 Debugging MVD in VMs
 To debug the MVD Vagrant exposes the following ports:
-- Consumer Postgres: `5432` 
+- Consumer Postgres: `5432`
 - Consumer Vault Web UI: `8200`
 - Consumer Jaeger Web UI: `16686`
 - Provider Postgres: `5433`
@@ -920,11 +920,64 @@ On the other two machines the edc components are deployed as docker containers. 
 As you can see there are a lot of interactions going in the dataspace. In the following the interactions will be explained in general and based on the executed postman requests as they trigger these interactions between the components. Some of the interactions are already started after deploying and seeding the dataspace for example the dataplane registers itself on the controlplane. It's also important to know that the postman requests are from the point of view of a consumer. So all of the requests are made to the consumer controlplane except for the request to retrieve data. This requests is directly executed agains the provider dataplane which exposes a port to access the data after the contract negotiation.
 
 #### 11.5.2 Interactions after the deployment
-After the deployment of the dataspace is finished the controlplane tries to resolve the dids of the participants defined in the `deployment/assets/participants/participants.vm.json`. This results in a call to the identity hub of the participant e.g. the consumer controlplane calls the provider identity hub.
+After the deployment of the dataspace is finished the controlplanes and the catalog server try to resolve the dids of the participants defined in the `deployment/assets/participants/participants.vm.json`. This results in a call to the identity hub of the participant e.g. the consumer controlplane calls the provider identity hub.
+The returned did contains the Service Endpoint which is the dsp url. For the consumer it is the dsp url of the control plane. For the provider it is the dsp url of the catalog server.
+The controlplanes and catalog server regularly call the service endpoint defined in the did. For the consumer controlplane the flow is as following:
+1. The **consumer control plane** retrieves the **STS client secret** from the **consumer vault**.
+2. Using the secret, it obtains an **access token** from the **consumer STS (Security Token Service)**.
+3. With the token, the consumer control plane sends a **catalog request** to the **provider's catalog server** (using the DSP URL defined in the DID).
+4. The **provider catalog server** retrieves its **STS client secret** from the **provider vault**.
+5. It uses the secret to get a **token** from the **provider STS**.
+6. The provider catalog server then calls the **consumer's identity hub** to **verify the token** presented by the consumer.
+7. Upon successful verification, the **provider catalog server returns a catalog** to the consumer. This catalog includes **linked assets** that reference two other provider control planes (QnA and Manufacturing).
+8. The **consumer control plane** uses the **data address URLs** from the linked assets to send **catalog requests** to the **QnA and Manufacturing control planes**.
+9. These control planes, in turn, retrieve a **token** from the **provider STS** and **verify the consumer token** with the **consumer identity hub**.
+10. Finally, they return their **respective catalogs** to the consumer control plane.
 
-The controlplanes also regularly execute a catalog request which means that for example the consumer controlplane calls the provider catalog server but also the other two provider controlplanes. This can be observed in the logs of the controlplanes and the catalog server:
-`DSP: Incoming CatalogRequestMessage for class org.eclipse.edc.connector.controlplane.catalog.spi.Catalog process`
-The catalog request of the consumer controlplane has the following flow: The consumer controlplane retrieves a token from the consumer sts and uses this token in the request to the provider catalog server. The provider catalog server retrieves a token from the provider sts and uses this token for the request to the consumer identity hub to verify the consumer connector token.
+```mermaid
+sequenceDiagram
+  ConsumerControlplane ->> ConsumerVault: Get STS client secret
+  ConsumerVault -->> ConsumerControlplane: STS client secret
+  ConsumerControlplane ->> ConsumerSTS: Get token
+  ConsumerSTS ->> ConsumerVault: Get key
+  ConsumerVault -->> ConsumerSTS: key
+  ConsumerSTS -->> ConsumerControlplane: token
+  ConsumerControlplane ->> ProviderCatalog: /api/dsp/catalog/request
+  ProviderCatalog ->> ProviderVault: Get STS client secret
+  ProviderVault -->> ProviderCatalog: STS client secret
+  ProviderCatalog ->> ProviderSTS: Get token
+  ProviderSTS -->> ProviderCatalog: token
+  ProviderCatalog ->> ConsumerIdentityHub: /api/presentation/v1/participants/{participantId}/presentations/query
+  ConsumerIdentityHub ->> ConsumerSTS: Get key
+  ConsumerSTS -->> ConsumerIdentityHub: key
+  ConsumerIdentityHub -->> ProviderCatalog: Verification status
+  ProviderCatalog -->> ConsumerControlplane: catalog
+```
+
+The same flow applies for the provider catalog server, qna controlplane and manufacturing controlplane. ALl three call the dsp url of the consumer controlplane.
+
+During the explanation of the requests there is always the same pattern in the flow where the sts client secret is obtained from the vault and the token is obtained from the secure token service. Also the call to the counterparty identity hub for verification is always executed. As this would blow up the explanations it will be omitted as it is already explained in the above flow description for the catalog request. In the following sequence diagrams of the two patterns that are omitted:
+```mermaid
+sequenceDiagram
+  ConsumerControlplane ->> ConsumerVault: Get STS client secret
+  ConsumerVault -->> ConsumerControlplane: STS client secret
+  ConsumerControlplane ->> ConsumerSTS: Get token
+  ConsumerSTS ->> ConsumerVault: Get key
+  ConsumerVault -->> ConsumerSTS: key
+  ConsumerSTS -->> ConsumerControlplane: token
+```
+
+```mermaid
+sequenceDiagram
+  ProviderCatalog ->> ProviderVault: Get STS client secret
+  ProviderVault -->> ProviderCatalog: STS client secret
+  ProviderCatalog ->> ProviderSTS: Get token
+  ProviderSTS -->> ProviderCatalog: token
+  ProviderCatalog ->> ConsumerIdentityHub: /api/presentation/v1/participants/{participantId}/presentations/query
+  ConsumerIdentityHub ->> ConsumerSTS: Get key
+  ConsumerSTS -->> ConsumerIdentityHub: key
+  ConsumerIdentityHub -->> ProviderCatalog: Verification status
+```
 
 > [!NOTE]
 > The catalog server itself is also a controlplane but with less dependencies included as its purpose is to only provide linked assets that contain a reference to the actual asset. The actual asset information are provided by the controlplane.
@@ -932,25 +985,203 @@ The catalog request of the consumer controlplane has the following flow: The con
 #### 11.5.3 Executing the `Get Cached Catalog` request
 The request is sent from postman to the consumer controlplane and the controlplane directly returns the cached catalog. So no other components are involved during this request. This is the case because as explained before the controlplanes regularly execute a `CatalogRequestMessage` and cache the current available catalog.
 
+```mermaid
+sequenceDiagram
+  PostmanClient ->> ConsumerControlplane: POST /api/catalog/v1alpha/catalog/query
+  ConsumerControlplane -->> PostmanClient: Cached catalog
+```
+
 #### 11.5.4 Executing the `Initiate the contract negotiation` request
-TODO
+> [!NOTE]
+> For this request asset 1 is used to negotiate the contract.
+
+1. **Postman** sends a contract negotiation request to the **consumer control plane** via `/api/management/v3/contractnegotiations`.
+2. The **consumer control plane** internally initiates the contract negotiation process.
+3. It stores a new contract negotiation record in the **consumer Postgres database**.
+4. The consumer control plane processes the negotiation in its `initial` state.
+5. The contract negotiation record is updated in the **consumer database**.
+6. The negotiation moves into the `requesting` state.
+7. A contract negotiation request is sent to the **provider QnA control plane** via `/api/dsp/negotiations/request`.
+8. The **provider QnA control plane** acknowledges the request with a `requested` notification.
+9. It inserts a new contract negotiation record into the **provider Postgres database**.
+10. The negotiation is processed internally in the `requested` state.
+11. The negotiation record is updated in the **provider database**.
+12. The negotiation moves into the `agreeing` state.
+13. The provider sends a contract agreement message to the consumer at `/api/dsp/negotiations/{id}/agreement`.
+14. The **consumer control plane** processes this by notifying it has `agreed`.
+15. A corresponding contract agreement is stored in the **consumer Postgres database**.
+16. The consumer also updates its contract negotiation record.
+17. Meanwhile, the **provider** updates its contract agreement and negotiation records accordingly.
+18. The provider then transitions the negotiation to the `verified` state and updates the relevant entries in its database.
+19. The provider moves the negotiation to the `finalizing` state.
+20. It sends an event notification to the **consumer** via `/api/dsp/negotiations/{id}/events`.
+21. The provider continues to update the contract agreement and negotiation records as part of finalization.
+22. On the **consumer side**, the negotiation is processed in the `agreed` state.
+23. The consumer updates its contract agreement and negotiation records.
+24. The consumer transitions the negotiation to the `verifying` state.
+25. The **consumer control plane** sends a verification request to the provider via `/api/dsp/negotiations/{id}/agreement/verification`.
+26. The **provider QnA control plane** confirms verification by sending a `verified` notification.
+27. The provider updates its contract agreement and negotiation records.
+28. Finally, the consumer also updates its contract agreement and negotiation records to reflect the completed state.
+
+```mermaid
+sequenceDiagram
+  Postman ->> ConsumerControlplane: POST /api/management/v3/contractnegotiations
+  ConsumerControlplane ->> ConsumerControlplane: Initiate
+  ConsumerControlplane ->> ConsumerPostgres: Insert contract negotiation
+  ConsumerControlplane ->> ConsumerControlplane: Process initial
+  ConsumerControlplane ->> ConsumerPostgres: Update contract negotiation
+  ConsumerControlplane ->> ConsumerControlplane: Process requesting
+  ConsumerControlplane ->> ProviderQnAControlplane: /api/dsp/negotiations/request
+  ProviderQnAControlplane ->> ProviderQnAControlplane: Notify Requested
+  ProviderQnAControlplane ->> ProviderPostgres: Insert contract negotiation
+  ProviderQnAControlplane ->> ProviderQnAControlplane: Process requested
+  ProviderQnAControlplane ->> ProviderPostgres: Updated contract negotiation
+  ProviderQnAControlplane ->> ProviderQnAControlplane: Process agreeing
+  ProviderQnAControlplane ->> ConsumerControlplane: /api/dsp/negotiations/{id}/agreement
+  ConsumerControlplane ->> ConsumerControlplane: Notify agreed
+  ConsumerControlplane ->> ConsumerPostgres: Insert contract agreement
+  ConsumerControlplane ->> ConsumerPostgres: Update contract negotiation
+  ProviderQnAControlplane ->> ProviderPostgres: Update contract agreement
+  ProviderQnAControlplane ->> ProviderPostgres: Update contract negotiation
+  ProviderQnAControlplane ->> ProviderQnAControlplane: Process verified
+  ProviderQnAControlplane ->> ProviderPostgres: Update contract agreement
+  ProviderQnAControlplane ->> ProviderPostgres: Update contract negotiation
+  ProviderQnAControlplane ->> ProviderQnAControlplane: Process finalizing
+  ProviderQnAControlplane ->> ConsumerControlplane: /api/dsp/negotiations/{id}/events
+  ProviderQnAControlplane ->> ProviderPostgres: Update contract agreement
+  ProviderQnAControlplane ->> ProviderPostgres: Update contract negotiation
+  ProviderQnAControlplane ->> ProviderPostgres: Update contract negotiation
+  ConsumerControlplane ->> ConsumerControlplane: Process agreed
+  ConsumerControlplane ->> ConsumerPostgres: Update contract agreement
+  ConsumerControlplane ->> ConsumerPostgres: Update contract negotiation
+  ConsumerControlplane ->> ConsumerControlplane: Process verifying
+  ConsumerControlplane ->> ProviderQnAControlplane: /api/dsp/negotiations/{id}/agreement/verification
+  ProviderQnAControlplane ->> ProviderQnAControlplane: Notify verified
+  ProviderQnAControlplane ->> ProviderPostgres: Update contract agreement
+  ProviderQnAControlplane ->> ProviderPostgres: Update contract negotiation
+  ConsumerControlplane ->> ConsumerPostgres: Update contract agreement
+  ConsumerControlplane ->> ConsumerPostgres: Update contract negotiation
+```
 
 #### 11.5.5 Executing the `Query negotiation status` request
-TODO
+In this request the postman client sends a post request to the url `/api/management/v3/contractnegotiations/request` of the consumer controlplane to query the current status of the contract negotiation. 
+The consumer controlplane then returns a list of the contract negotiations that are currently in the database. The consumer controlplane also checks if the contract negotiation is in the final state and returns the contract agreement id. This id is used in the next request to initiate the data transfer.
+
+```mermaid
+sequenceDiagram
+  PostmanClient ->> ConsumerControlplane: POST /api/management/v3/contractnegotiations/request
+  ConsumerControlplane -->> PostmanClient: Contract negotiations
+```
 
 #### 11.5.6 Executing the `Initiate data transfer` request
-TODO
+
+1. The **Postman client** sends a `POST` request to the **consumer control plane** at `/api/management/v3/transferprocesses` to initiate a new data transfer.
+2. The **consumer control plane** begins processing the transfer by initiating the consumer request.
+3. A new transfer process entry is inserted into the **consumer Postgres database**.
+4. The control plane transitions the process into the `initial` state.
+5. The database is updated to reflect this state.
+6. The process moves into the `provisioning` phase, where necessary resources and configurations are prepared.
+7. The **provisioning** logic is executed.
+8. The updated state is saved in the **consumer database**.
+9. The process continues into the `provisioned` state, indicating provisioning was successful.
+10. The database is updated again.
+11. The process enters the `requesting` state, and a transfer request is sent to the **provider QnA control plane** via `POST /api/dsp/transfers/request`.
+12. The **provider QnA control plane** acknowledges the request and triggers a `requested` event.
+13. A corresponding transfer process entry is inserted into the **provider Postgres database**.
+14. The provider starts processing the transfer in the `initial` state.
+15. The state is updated in the database.
+16. The process moves into the `provisioning` phase.
+17. Provisioning logic is executed on the provider side.
+18. The **provider database** is updated with the new state.
+19. The transfer reaches the `provisioned` state and the database is updated accordingly.
+20. The provider enters the `starting` phase of the transfer.
+21. The transfer is started by calling the **DataflowManager**.
+22. The **DataPlaneSignalingClient** is also used to initiate the data flow.
+23. The **provider QnA control plane** sends a `POST` request to the **provider data plane** at `/api/control/v1/dataflows` to establish the data flow.
+24. The **provider data plane** inserts an access token record into the **provider database**, enabling secure access to the data.
+25. The **provider control plane** prepares a transfer start message.
+26. This message is sent to the **consumer control plane** via `POST /api/dsp/transfers/{id}/start`.
+27. The **consumer control plane** acknowledges the message and marks the transfer as `started`.
+28. The **consumer database** is updated with the new state.
+29. An **EDR (Endpoint Data Reference)** entry is inserted into the **consumer Postgres database**, enabling the consumer to access the data.
+30. Finally, the **provider database** is updated with the final state of the transfer process.
+
+```mermaid
+sequenceDiagram
+  PostmanClient ->> ConsumerControlplane: POST /api/management/v3/transferprocesses
+  ConsumerControlplane ->> ConsumerControlplane: Initiate consumer request
+  ConsumerControlplane ->> ConsumerPostgres: Insert transfer process
+  ConsumerControlplane ->> ConsumerControlplane: Process initial
+  ConsumerControlplane ->> ConsumerPostgres: Update transfer process
+  ConsumerControlplane ->> ConsumerControlplane: Process provisioning
+  ConsumerControlplane ->> ConsumerControlplane: Provision
+  ConsumerControlplane ->> ConsumerPostgres: Update transfer process
+  ConsumerControlplane ->> ConsumerControlplane: Process provisioned
+  ConsumerControlplane ->> ConsumerPostgres: Update transfer process
+  ConsumerControlplane ->> ConsumerControlplane: Process requesting
+  ConsumerControlplane ->> ProviderQnAControlplane: POST /api/dsp/transfers/request
+  ProviderQnAControlplane ->> ProviderQnAControlplane: Notify requested
+  ProviderQnAControlplane ->> ProviderPostgres: Insert transfer process
+  ProviderQnAControlplane ->> ProviderQnAControlplane: Process initial
+  ProviderQnAControlplane ->> ProviderPostgres: Update transfer process
+  ProviderQnAControlplane ->> ProviderQnAControlplane: Process provisioning
+  ProviderQnAControlplane ->> ProviderQnAControlplane: Provision
+  ProviderQnAControlplane ->> ProviderPostgres: Update transfer process
+  ProviderQnAControlplane ->> ProviderQnAControlplane: Process provisioned
+  ProviderQnAControlplane ->> ProviderPostgres: Update transfer process
+  ProviderQnAControlplane ->> ProviderQnAControlplane: Process starting
+  ProviderQnAControlplane ->> ProviderQnAControlplane: Start (DataflowManager)
+  ProviderQnAControlplane ->> ProviderQnAControlplane: Start (DataPlaneSignalingClient)
+  ProviderQnAControlplane ->> ProviderQnADataplane: POST /api/control/v1/dataflows
+  ProviderQnADataplane ->> ProviderPostgres: Insert access token data
+  ProviderQnAControlplane ->> ProviderQnAControlplane: Transfer start message
+  ProviderQnAControlplane ->> ConsumerControlplane: POST /api/dsp/transfers/{id}/start
+  ConsumerControlplane ->> ConsumerControlplane: Notify started
+  ConsumerControlplane ->> ConsumerPostgres: Update transfer process
+  ConsumerControlplane ->> ConsumerPostgres: Insert edr entry
+  ProviderQnAControlplane ->> ProviderPostgres: Update transfer process
+```
 
 #### 11.5.7 Executing the `Query data transfers` request
-TODO
+This request is sent from postman to the consumer controlplane and the controlplane directly returns the cached transfer processes.
+So no other components are involved during this request.
+```mermaid
+sequenceDiagram
+  PostmanClient ->> ConsumerControlplane: POST /api/management/v3/transferprocesses/request
+  ConsumerControlplane -->> PostmanClient: Transfer processes
+```
 
 #### 11.5.8 Executing the `Get EndpointDataReference` request
-TODO
+This request is sent from postman to the consumer controlplane and the controlplane directly returns the cached EDRs.
+So no other components are involved during this request.
+```mermaid
+sequenceDiagram
+  PostmanClient ->> ConsumerControlplane: POST /api/management/v3/edrs/request
+  ConsumerControlplane -->> PostmanClient: Cached EDRs
+```
 
 #### 11.5.9 Executing the `Get access token for EDR` request
-TODO
+The request is sent from postman to the consumer controlplane. The consumer controlplane first retrieves the EDR access token from the consumer vault and then returns the endpoint and the access token to postman. 
+The access token is used in the next request to access the data.
+```mermaid
+sequenceDiagram
+  PostmanClient ->> ConsumerControlplane: /api/management/v3/edrs/{{TRANSFER_PROCESS_ID}}/dataaddress
+  ConsumerControlplane ->> ConsumerVault: Get EDR access token
+  ConsumerVault -->> ConsumerControlplane: EDR access token
+  ConsumerControlplane -->> PostmanClient: Endpoint and access token
+```
 
 #### 11.5.10 Executing the `Fetch data` request
-TODO
+> [!NOTE]
+> Currently the qna provider dataplane returns dummy data from a public api for asset 1.
+
+```mermaid
+sequenceDiagram
+  PostmanClient ->> ProviderQnADataplane: GET /api/public
+  ProviderQnADataplane ->> DummyDataAPI: GET https://jsonplaceholder.typicode.com/todos
+  DummyDataAPI -->> ProviderQnADataplane: Dummy Data
+  ProviderQnADataplane -->> PostmanClient: Dummy Data
+```
 
 ![Overview of the Dataspace](mvd.drawio.png "Minimum Viable Dataspace")

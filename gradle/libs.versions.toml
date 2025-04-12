@@ -96,6 +96,7 @@ jackson-datatype-jakarta-jsonp = { module = "com.fasterxml.jackson.datatype:jack
 parsson = { module = "org.eclipse.parsson:parsson", version.ref = "parsson" }
 opentelemetry-exporter-otlp = { module = "io.opentelemetry:opentelemetry-exporter-otlp", version = "1.47.0" }
 opentelemetry-javaagent = { module = "io.opentelemetry.javaagent:opentelemetry-javaagent", version = "2.13.0" }
+apache-commons-csv = { module = "org.apache.commons:commons-csv", version = "1.14.0" }
 
 # BOM modules
 edc-bom-controlplane = { module = "org.eclipse.edc:controlplane-dcp-bom", version.ref = "edc" }

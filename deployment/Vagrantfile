@@ -4,7 +4,7 @@ Vagrant.configure("2") do |config|
   vm_cpus = 2
   vm_ram = 4096
 
-  # TODO: Find a way to reduce disk size of the vms
+  # TODO: Cleanup mapped ports
   # Consumer VM
   config.vm.define "mvd-consumer-vm" do |consumer|
     consumer.vm.box = vm_box
@@ -54,7 +54,7 @@ Vagrant.configure("2") do |config|
     provider.vm.network "forwarded_port", guest: 9082, host: 9082, auto_correct: true
     # QNA Connector Protocol Port
     provider.vm.network "forwarded_port", guest: 4082, host: 4082, auto_correct: true
-    # DataPlane Public Port
+    # Dataplane Public Port
     provider.vm.network "forwarded_port", guest: 11002, host: 11002, auto_correct: true
 
     provider.vm.synced_folder "../", "/tmp/MinimumViableDataspace"

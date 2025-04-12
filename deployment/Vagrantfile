@@ -54,8 +54,10 @@ Vagrant.configure("2") do |config|
     provider.vm.network "forwarded_port", guest: 9082, host: 9082, auto_correct: true
     # QNA Connector Protocol Port
     provider.vm.network "forwarded_port", guest: 4082, host: 4082, auto_correct: true
-    # Dataplane Public Port
+    # QnA Dataplane Public Port
     provider.vm.network "forwarded_port", guest: 11002, host: 11002, auto_correct: true
+    # IT Dataplane Public Port
+    provider.vm.network "forwarded_port", guest: 11420, host: 11420, auto_correct: true
 
     provider.vm.synced_folder "../", "/tmp/MinimumViableDataspace"
     provider.vm.provider "virtualbox" do |vb|

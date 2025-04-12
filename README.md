@@ -924,11 +924,13 @@ After the deployment of the dataspace is finished the controlplane tries to reso
 
 The controlplanes also regularly execute a catalog request which means that for example the consumer controlplane calls the provider catalog server but also the other two provider controlplanes. This can be observed in the logs of the controlplanes and the catalog server:
 `DSP: Incoming CatalogRequestMessage for class org.eclipse.edc.connector.controlplane.catalog.spi.Catalog process`
+The catalog request of the consumer controlplane has the following flow: The consumer controlplane retrieves a token from the consumer sts and uses this token in the request to the provider catalog server. The provider catalog server retrieves a token from the provider sts and uses this token for the request to the consumer identity hub to verify the consumer connector token.
 
- The catalog server itself is also a controlplane but with less dependencies included as its purpose is to only provide linked assets that contain a reference to the actual asset. The actual asset information are provided by the controlplane.
+> [!NOTE]
+> The catalog server itself is also a controlplane but with less dependencies included as its purpose is to only provide linked assets that contain a reference to the actual asset. The actual asset information are provided by the controlplane.
 
-#### 11.5.3 Executing the `Get the catalog` request
-TODO
+#### 11.5.3 Executing the `Get Cached Catalog` request
+The request is sent from postman to the consumer controlplane and the controlplane directly returns the cached catalog. So no other components are involved during this request. This is the case because as explained before the controlplanes regularly execute a `CatalogRequestMessage` and cache the current available catalog.
 
 #### 11.5.4 Executing the `Initiate the contract negotiation` request
 TODO

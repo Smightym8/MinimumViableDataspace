@@ -4,23 +4,17 @@
     chdir: /home/vagrant/MinimumViableDataspace/deployment/docker/issuer
   when: "'issuer' in group_names"
 
-#- name: Execute Gradle Build
-#  shell:
-#    cmd: ./gradlew build
-#    chdir: /home/vagrant/MinimumViableDataspace
-#  when: "'consumer' in group_names or 'provider' in group_names"
-
-#- name: Execute Gradle copyOpenTelemetryJar
-#  shell:
-#    cmd: ./gradlew copyOpenTelemetryJar
-#    chdir: /home/vagrant/MinimumViableDataspace
-#  when: "'consumer' in group_names or 'provider' in group_names"
-
 - name: Execute Gradle Dockerize with Persistence
   shell:
     cmd: ./gradlew -Ppersistence=true dockerize
     chdir: /home/vagrant/MinimumViableDataspace
   when: "'consumer' in group_names or 'provider' in group_names"
+
+- name: Dockerize dummy service
+  shell:
+    cmd: docker build -t dummy-service .
+    chdir: /home/vagrant/MinimumViableDataspace/external/dummy-service
+  when: "'provider' in group_names"
 
 - name: Ensure seed-consumer-vm.sh is executable
   file:
@@ -57,8 +51,6 @@
     cmd: docker compose up -d
     chdir: /home/vagrant/MinimumViableDataspace/deployment/docker/provider
   when: "'provider' in group_names"
-
-
 
 - name: Seed Consumer
   shell:

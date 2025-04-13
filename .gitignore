@@ -11,3 +11,6 @@ out/
 *terraform.tfstate*
 .vagrant
 *.bkp
+
+# Python
+venv

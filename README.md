@@ -1051,7 +1051,6 @@ sequenceDiagram
   ProviderQnAControlplane ->> ConsumerControlplane: /api/dsp/negotiations/{id}/events
   ProviderQnAControlplane ->> ProviderPostgres: Update contract agreement
   ProviderQnAControlplane ->> ProviderPostgres: Update contract negotiation
-  ProviderQnAControlplane ->> ProviderPostgres: Update contract negotiation
   ConsumerControlplane ->> ConsumerControlplane: Process agreed
   ConsumerControlplane ->> ConsumerPostgres: Update contract agreement
   ConsumerControlplane ->> ConsumerPostgres: Update contract negotiation

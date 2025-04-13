@@ -24,6 +24,7 @@ dependencies {
 
     if (project.properties.getOrDefault("persistence", "false") == "true") {
         runtimeOnly(libs.edc.vault.hashicorp)
+        runtimeOnly(libs.edc.bom.dataplane.sql)
         runtimeOnly(libs.edc.sts.remote.client)
         runtimeOnly(project(":extensions:data-plane-csv"))
         println("This runtime compiles with a remote STS client, Hashicorp Vault, PosgreSQL and the csv extensions. You will need properly configured csv File, PostgreSQL path and HCV instances.")

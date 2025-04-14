@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ## Seed asset/policy/contract-def data to both "provider-qna" and "provider-manufacturing"
-for url in 'http://127.0.0.1:4081' 'http://127.0.0.1:5081' 'http://127.0.0.1:2081'
+for url in 'http://127.0.0.1:4081' 'http://127.0.0.1:5081'
 do
   newman run \
     --folder "Seed" \
@@ -15,7 +15,6 @@ newman run \
   --env-var "HOST=http://127.0.0.1:9081" \
   --env-var "PROVIDER_QNA_DSP_URL=http://192.168.1.102:4082" \
   --env-var "PROVIDER_MF_DSP_URL=http://192.168.1.102:5082" \
-  --env-var "PROVIDER_IT_DSP_URL=http://192.168.1.102:2082" \
   ./deployment/postman/MVD.postman_collection.json
 
 ## Seed management DATA to identityhubs

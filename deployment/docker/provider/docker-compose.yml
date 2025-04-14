@@ -444,6 +444,8 @@ services:
     image: dummy-service:latest
     container_name: provider-dummy-service
     restart: always
+    environment:
+      - DATABASE_URL=postgresql://dummyuser:dummy-user@provider-postgres:5432/dummydb
 
 
 #  it-connector-controlplane:
